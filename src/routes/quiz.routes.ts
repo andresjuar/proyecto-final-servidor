@@ -77,7 +77,7 @@ router.post("/generate", generateQuiz);
  *   post:
  *     tags: [Quizzes]
  *     summary: Subir la imagen de portada de un quiz
- *      parameters:
+ *     parameters:
  *       - in: path
  *         name: id
  *         required: true
@@ -87,7 +87,7 @@ router.post("/generate", generateQuiz);
  *       200:
  *         description: Url de la imágen
  */
-router.post("/generate", uploadQuizImage);
+router.post("/:id/image", uploadQuizImage);
 
 
 /**
