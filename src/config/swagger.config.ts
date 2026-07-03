@@ -6,9 +6,9 @@ const swaggerConfig: Options = {
     definition: {
         openapi: '3.0.0',
         info: {
-            title: 'API de prueba',
+            title: 'API proyecto final Andres y Adan',
             version: '0.0.1',
-            description: 'esta api no sirve',
+            description: 'Rico quiz plus',
         },
         servers: [
             {
