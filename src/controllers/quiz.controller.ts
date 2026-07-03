@@ -34,6 +34,8 @@ export const createQuiz = (req: Request, res: Response) => {
 
 /**
  * POST /quizzes/generate
+ * 
+ * Genera el quiz con IA
  */
 export const generateQuiz = (req: Request, res: Response) => {
   const isConnected = true;
