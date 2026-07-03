@@ -4,10 +4,6 @@ import { Request, Response } from 'express';
  * GET /auth/google
  */
 export const googleAuth = (req: Request, res: Response) => {
-  const isConnected = true;
-  if (!isConnected) {
-    return res.status(400).json({ message: 'Sin conexión con el servidor' });
-  }
   return res.redirect('https://accounts.google.com/o/oauth2/v2/auth?mock=true');
 };
 
@@ -15,10 +11,6 @@ export const googleAuth = (req: Request, res: Response) => {
  * GET /auth/google/callback?code=...
  */
 export const googleCallback = (req: Request, res: Response) => {
-  const isConnected = true;
-  if (!isConnected) {
-    return res.status(400).json({ message: 'Sin conexión con el servidor' });
-  }
 
   return res.status(200).json({
     token: 'jwt.mock.token',
@@ -35,9 +27,6 @@ export const googleCallback = (req: Request, res: Response) => {
  * POST /auth/logout
  */
 export const logout = (req: Request, res: Response) => {
-  const isConnected = true;
-  if (!isConnected) {
-    return res.status(400).json({ message: 'Sin conexión con el servidor' });
-  }
+
   return res.status(200).json({ message: 'Sesión cerrada' });
 };
