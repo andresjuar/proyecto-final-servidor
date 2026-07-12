@@ -57,7 +57,7 @@ const matchSchema = new Schema(
         status: {
             type: String,
             enum: {
-                values: ['waiting', 'in_progress', 'finished', 'cancelled']
+                values: ['waiting', 'in_progress', 'finished', 'cancelled'],
             },
             default: 'waiting',
         },
