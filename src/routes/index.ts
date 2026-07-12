@@ -28,4 +28,8 @@ router.use('/users', userRoutes);
 router.use('/quizzes', quizRoutes);
 router.use('/matches', matchRoutes);
 
+router.use((req, res) => {
+    res.status(404).json({ message: 'Ruta no encontrada' });
+});
+
 export default router;

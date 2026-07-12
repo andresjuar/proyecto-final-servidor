@@ -1,5 +1,6 @@
 import express from 'express';
 import router from './routes';
+import { errorMiddleware } from './middlewares/error.middleware';
 
 let app: express.Application;
 export function createApp() {
@@ -8,6 +9,7 @@ export function createApp() {
     // extender app
 
     app.use(router);
+    app.use(errorMiddleware);
 
     return app;
 }
