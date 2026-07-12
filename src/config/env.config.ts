@@ -10,4 +10,6 @@ export const env = {
     port: Number(process.env.PORT) || 3000,
     mongoUri: required('MONGODB_URI'),
     nodeEnv: process.env.NODE_ENV || 'development',
+    jwtSecret: required('JWT_SECRET'),
+    jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
 };

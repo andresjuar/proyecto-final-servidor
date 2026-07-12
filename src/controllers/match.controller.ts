@@ -52,7 +52,8 @@ export const checkRoomExists = asyncHandler(async (req, res: Response) => {
  * POST /matches
  */
 export const createMatch = asyncHandler(async (req, res: Response) => {
-    const { quiz, host } = req.body;
+    const { quiz } = req.body;
+    const host = req.user!.id;
 
     const quizDoc = await Quiz.findById(quiz);
     if (!quizDoc) {

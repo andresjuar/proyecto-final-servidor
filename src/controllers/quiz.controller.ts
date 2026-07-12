@@ -53,13 +53,9 @@ export const getQuizzes = asyncHandler(async (req: Request, res: Response) => {
  * POST /quizzes
  */
 export const createQuiz = asyncHandler(async (req: Request, res: Response) => {
-    const { owner } = req.body;
+    const owner = req.user!.id;
 
-    if (!owner) {
-        throw new AppError('El owner es requerido (temporal, hasta tener auth real)', 400);
-    }
-
-    const quiz = await Quiz.create(req.body);
+    const quiz = await Quiz.create({ ...req.body, owner });
 
     await User.findByIdAndUpdate(owner, { $push: { createdQuizzes: quiz._id } });
 

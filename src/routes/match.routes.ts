@@ -7,6 +7,7 @@ import {
     getMatchesByUser,
     updateMatch,
 } from './../controllers/match.controller';
+import { authMiddleware } from '../middlewares/auth.middleware';
 
 const router = Router();
 
@@ -16,6 +17,8 @@ const router = Router();
  *   post:
  *     tags: [Matches]
  *     summary: Crea una nueva partida para un quiz
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -24,23 +27,20 @@ const router = Router();
  *             type: object
  *             required:
  *               - quiz
- *               - host
  *             properties:
  *               quiz:
  *                 type: string
  *                 description: ObjectId del quiz que se jugará
  *                 example: 6650f2a3b5e4c10012345678
- *               host:
- *                 type: string
- *                 description: ObjectId del usuario anfitrión
- *                 example: 6650f2a3b5e4c10087654321
  *     responses:
  *       201:
  *         description: Partida creada (incluye el roomCode generado)
  *       404:
- *         description: Quiz o host no encontrados
+ *         description: Quiz no encontrado
+ *       401:
+ *         description: No autorizado (token faltante o inválido)
  */
-router.post('/', createMatch);
+router.post('/', authMiddleware, createMatch);
 
 /**
  * @swagger

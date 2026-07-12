@@ -8,6 +8,7 @@ import {
     deleteQuiz,
     uploadQuizImage,
 } from '../controllers/quiz.controller';
+import { authMiddleware } from '../middlewares/auth.middleware';
 
 const router = Router();
 
@@ -68,6 +69,8 @@ router.get('/', getQuizzes);
  *   post:
  *     tags: [Quizzes]
  *     summary: Crea un quiz manualmente
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -75,14 +78,9 @@ router.get('/', getQuizzes);
  *           schema:
  *             type: object
  *             required:
- *               - owner
  *               - title
  *               - questions
  *             properties:
- *               owner:
- *                 type: string
- *                 description: ObjectId del usuario creador
- *                 example: 6650f2a3b5e4c10012345678
  *               title:
  *                 type: string
  *                 minLength: 3
@@ -146,8 +144,10 @@ router.get('/', getQuizzes);
  *         description: Quiz creado
  *       400:
  *         description: Faltan campos requeridos o validación fallida
+ *       401:
+ *         description: No autorizado (token faltante o inválido)
  */
-router.post('/', createQuiz);
+router.post('/', authMiddleware, createQuiz);
 
 /**
  * @swagger
