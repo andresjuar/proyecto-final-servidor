@@ -5,7 +5,6 @@ import { User } from '../models/user.model';
 
 /**
  * GET /users/:id
- * Obtiene el perfil de un usuario.
  */
 export const getUserProfile = asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
@@ -21,8 +20,6 @@ export const getUserProfile = asyncHandler(async (req: Request, res: Response) =
 
 /**
  * PUT /users/:id
- * Edita el perfil de un usuario. Solo se permite modificar displayName y avatarUrl;
- * googleId y email quedan fijos una vez creado el usuario (vienen de Google, no se editan a mano).
  */
 export const updateUser = asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
@@ -46,13 +43,6 @@ export const updateUser = asyncHandler(async (req: Request, res: Response) => {
 
 /**
  * DELETE /users/:id
- * Elimina la cuenta de un usuario.
- *
- * NOTA / DECISIÓN PENDIENTE DE CONFIRMAR: por ahora esto NO elimina en cascada
- * los Quizzes ni Matches asociados a este usuario (serían huérfanos apuntando
- * a un owner/host que ya no existe). Se deja así para no perder datos por
- * accidente hasta que decidan la política real (soft delete, transferir
- * ownership, borrar en cascada, etc).
  */
 export const deleteUser = asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
@@ -68,11 +58,6 @@ export const deleteUser = asyncHandler(async (req: Request, res: Response) => {
 
 /**
  * GET /users/:id/quizzes
- * Lista los quizzes creados por un usuario.
- *
- * TODO: todavía dummy porque el modelo real de Quiz no existe (tarjeta #14/#17
- * pendientes). Cuando esté el modelo, reemplazar por:
- *   Quiz.find({ owner: id }).skip((page-1)*limit).limit(limit)
  */
 export const getUserQuizzes = asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
@@ -90,11 +75,6 @@ export const getUserQuizzes = asyncHandler(async (req: Request, res: Response) =
 
 /**
  * GET /users/:id/matches
- * Historial de partidas relacionadas a un usuario.
- *
- * TODO: todavía dummy porque el modelo real de Match no existe (tarjeta #18
- * pendiente, la lleva Andrés). Cuando esté el modelo, reemplazar por:
- *   Match.find({ $or: [{ host: id }, { 'players.user': id }] }).skip(...).limit(...)
  */
 export const getUserMatches = asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
