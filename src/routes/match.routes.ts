@@ -1,7 +1,26 @@
 import { Router } from 'express';
-import { checkRoomExists, getMatchById, getMatchesByUser } from './../controllers/match.controller';
+import {
+    checkRoomExists,
+    createMatch,
+    deleteMatch,
+    getMatchById,
+    getMatchesByUser,
+    updateMatch,
+} from './../controllers/match.controller';
 
 const router = Router();
+
+/**
+ * @swagger
+ * /matches:
+ *   post:
+ *     tags: [Matches]
+ *     summary: Crea una nueva partida para un quiz
+ *     responses:
+ *       201:
+ *         description: Partida creada
+ */
+router.post('/', createMatch);
 
 /**
  * @swagger
@@ -54,7 +73,33 @@ router.get('/user/:userId', getMatchesByUser);
  *     responses:
  *       200:
  *         description: Resultado y detalles de la partida
+ *   put:
+ *     tags: [Matches]
+ *     summary: Actualiza el status/timestamps de una partida
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Partida actualizada
+ *   delete:
+ *     tags: [Matches]
+ *     summary: Elimina una partida
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Partida eliminada
  */
 router.get('/:id', getMatchById);
+router.put('/:id', updateMatch);
+router.delete('/:id', deleteMatch);
 
 export default router;
