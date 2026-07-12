@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getUserProfile, getUserQuizzes, getUserMatches } from '../controllers/user.controller';
+import { getUserProfile, getUserQuizzes, getUserMatches, updateUser, deleteUser } from '../controllers/user.controller';
 
 const router = Router();
 
@@ -18,15 +18,47 @@ const router = Router();
  *     responses:
  *       200:
  *         description: Datos del usuario
+ *       404:
+ *         description: Usuario no encontrado
+ *   put:
+ *     tags: [Users]
+ *     summary: Edita displayName y/o avatarUrl de un usuario
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Usuario actualizado
+ *       404:
+ *         description: Usuario no encontrado
+ *   delete:
+ *     tags: [Users]
+ *     summary: Elimina la cuenta de un usuario
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Usuario eliminado
+ *       404:
+ *         description: Usuario no encontrado
  */
 router.get('/:id', getUserProfile);
+router.put('/:id', updateUser);
+router.delete('/:id', deleteUser);
 
 /**
  * @swagger
  * /users/{id}/quizzes:
  *   get:
  *     tags: [Users]
- *     summary: Obtriene los quizzes de un usuario en específico
+ *     summary: Obtiene los quizzes de un usuario en específico
  *     parameters:
  *       - in: path
  *         name: id
@@ -44,7 +76,7 @@ router.get('/:id/quizzes', getUserQuizzes);
  * /users/{id}/matches:
  *   get:
  *     tags: [Users]
- *     summary: Obtriene el historial de partidas de un usuario
+ *     summary: Obtiene el historial de partidas de un usuario
  *     parameters:
  *       - in: path
  *         name: id
