@@ -1,5 +1,4 @@
-# proyecto-final-servidor
-<<<<<<< Updated upstream
+# Proyecto-final-servidor
 
 Plataforma de trivia interactivas en tiempo real. Proyecto integrador de la
 materia Tecnologías de Desarrollo en el Servidor.
@@ -14,7 +13,7 @@ materia Tecnologías de Desarrollo en el Servidor.
 | Backend                      | Node.js, Express.js (arquitectura MVC) |
 | Base de datos                | MongoDB + Mongoose                     |
 | Tiempo real                  | Socket.io                              |
-| Autenticación                | OAuth 2.0 con Google                   |
+| Autenticación                | OAuth 2.0 con Google  e inicio de sesión con correo y contraseña                 |
 | IA (generación de preguntas) | Gemini API                             |
 | Almacenamiento de imágenes   | Cloudinary / Supabase                  |
 | Documentación de API         | Swagger (OpenAPI 3.0)                  |
@@ -53,17 +52,24 @@ materia Tecnologías de Desarrollo en el Servidor.
 5. El servidor queda disponible en `http://localhost:3000` y la documentación
    interactiva de la API en `http://localhost:3000/api-docs`.
 
+
 ## Scripts Disponibles
 
-<!-- TODO: Hacer tabla con los scripts que tenemos y en este estilo -->
+| Script                | Descripción                                                    |
+| --------------------- | ---------------------------------------------------------------- |
+| `npm run dev`         | Levanta el servidor en modo desarrollo con recarga automática    |
+| `npm run build`       | Compila TypeScript a `dist/`                                     |
+| `npm run build:clean` | Limpia `dist/` y vuelve a compilar                                |
+| `npm start`           | Levanta el servidor ya compilado (`dist/`)                        |
+| `npm test`            | Corre las pruebas con Jest                                        |
+| `npm run lint`        | Corre ESLint                                                      |
+| `npm run lint:fix`    | Corre ESLint y corrige automáticamente lo que se pueda            |
+| `npm run format`      | Formatea el código con Prettier                                   |
+| `npm run format:check`| Verifica el formato sin modificar archivos                        |
 
-| Script        | Descripción                                                   |
-| ------------- | ------------------------------------------------------------- |
-| `npm run dev` | Levanta el servidor en modo desarrollo con recarga automática |
 
 ## Documentación
 
-- [Diseño inicial de la base de datos](./docs/database.md)
+- [Arquitectura del sistema](./docs/arquitectura.md)
+- [Diseño de la base de datos](./docs/database.md)
 - [Tablero de trabajo](./docs/tablero-trabajo.md)
-=======
->>>>>>> Stashed changes

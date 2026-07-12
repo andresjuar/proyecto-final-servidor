@@ -55,37 +55,3 @@ export const deleteUser = asyncHandler(async (req: Request, res: Response) => {
 
     return res.status(200).json({ message: 'Usuario eliminado' });
 });
-
-/**
- * GET /users/:id/quizzes
- */
-export const getUserQuizzes = asyncHandler(async (req: Request, res: Response) => {
-    const { id } = req.params;
-
-    const user = await User.findById(id);
-    if (!user) {
-        throw new AppError('Usuario no encontrado', 404);
-    }
-
-    return res.status(200).json({
-        data: [],
-        total: 0,
-    });
-});
-
-/**
- * GET /users/:id/matches
- */
-export const getUserMatches = asyncHandler(async (req: Request, res: Response) => {
-    const { id } = req.params;
-
-    const user = await User.findById(id);
-    if (!user) {
-        throw new AppError('Usuario no encontrado', 404);
-    }
-
-    return res.status(200).json({
-        data: [],
-        total: 0,
-    });
-});

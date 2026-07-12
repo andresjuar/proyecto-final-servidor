@@ -1,13 +1,15 @@
 import { Schema, model, Document, Types } from 'mongoose';
 
 export interface IUser extends Document {
-    googleId: string;
+    googleId?: string;
     email: string;
     displayName: string;
     avatarUrl?: string;
+    password: string;
     createdQuizzes: Types.ObjectId[];
     createdAt: Date;
     updatedAt: Date;
+    comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -16,8 +18,8 @@ const userSchema = new Schema<IUser>(
     {
         googleId: {
             type: String,
-            required: [true, 'El googleId es requerido'],
             unique: true,
+            sparse: true,
             trim: true,
         },
         email: {
@@ -42,6 +44,12 @@ const userSchema = new Schema<IUser>(
             type: String,
             trim: true,
             default: '',
+        },
+        password: {
+            type: String,
+            required: [true, 'La contraseña es requerida'],
+            minlength: [8, 'La contraseña debe tener al menos 8 caracteres'],
+            select: false,
         },
         createdQuizzes: {
             type: [{ type: Schema.Types.ObjectId, ref: 'Quiz' }],

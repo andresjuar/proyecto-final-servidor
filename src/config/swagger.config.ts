@@ -19,6 +19,13 @@ const swaggerConfig: Options = {
             schemas: {
                 Usuario: {},
             },
+            securitySchemes: {
+                bearerAuth: {
+                    type: 'http',
+                    scheme: 'bearer',
+                    bearerFormat: 'JWT',
+                },
+            },
         },
     },
     apis: ['./src/routes/**/*.ts'],

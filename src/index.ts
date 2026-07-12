@@ -1,10 +1,7 @@
-import swaggerJsDoc from 'swagger-jsdoc';
-import { serve, setup } from 'swagger-ui-express';
 import { config } from 'dotenv';
 config();
 
 import { createApp } from './app';
-import swaggerConfig from './config/swagger.config';
 import { env } from './config/env.config';
 import { connect } from './config/db.config';
 
@@ -15,9 +12,6 @@ async function main() {
     await connect();
 
     const app = createApp();
-
-    const swaggerSpec = swaggerJsDoc(swaggerConfig);
-    app.use('/api-docs', serve, setup(swaggerSpec));
 
     app.listen(env.port, () => {
         console.log('api running in http://localhost:' + env.port);

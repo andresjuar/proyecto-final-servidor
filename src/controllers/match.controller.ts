@@ -1,5 +1,7 @@
 import { Response } from 'express';
 import { Match } from '../models/match.model';
+import { Quiz } from '../models/quiz.model';
+import { User } from '../models/user.model';
 import { AppError } from '../utils/AppError';
 import { asyncHandler } from '../utils/asyncHandler';
 
@@ -50,7 +52,18 @@ export const checkRoomExists = asyncHandler(async (req, res: Response) => {
  * POST /matches
  */
 export const createMatch = asyncHandler(async (req, res: Response) => {
-    const { quiz, host } = req.body;
+    const { quiz } = req.body;
+    const host = req.user!.id;
+
+    const quizDoc = await Quiz.findById(quiz);
+    if (!quizDoc) {
+        throw new AppError('El quiz especificado no existe', 404);
+    }
+
+    const hostDoc = await User.findById(host);
+    if (!hostDoc) {
+        throw new AppError('El host especificado no existe', 404);
+    }
 
     const roomCode = await generateUniqueRoomCode();
 
