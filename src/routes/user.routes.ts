@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getUserProfile, getUserQuizzes, getUserMatches, updateUser, deleteUser } from '../controllers/user.controller';
+import { getUserProfile, updateUser, deleteUser } from '../controllers/user.controller';
 
 const router = Router();
 
@@ -29,6 +29,19 @@ const router = Router();
  *         required: true
  *         schema:
  *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               displayName:
+ *                 type: string
+ *                 example: Andres Juarez
+ *               avatarUrl:
+ *                 type: string
+ *                 example: https://picsum.photos/seed/avatar/100/100
  *     responses:
  *       200:
  *         description: Usuario actualizado
@@ -52,41 +65,5 @@ const router = Router();
 router.get('/:id', getUserProfile);
 router.put('/:id', updateUser);
 router.delete('/:id', deleteUser);
-
-/**
- * @swagger
- * /users/{id}/quizzes:
- *   get:
- *     tags: [Users]
- *     summary: Obtiene los quizzes de un usuario en específico
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Lista de quizzes del usuario
- */
-router.get('/:id/quizzes', getUserQuizzes);
-
-/**
- * @swagger
- * /users/{id}/matches:
- *   get:
- *     tags: [Users]
- *     summary: Obtiene el historial de partidas de un usuario
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Lista partidas del usuario
- */
-router.get('/:id/matches', getUserMatches);
 
 export default router;

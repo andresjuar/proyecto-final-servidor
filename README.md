@@ -1,5 +1,4 @@
 # proyecto-final-servidor
-<<<<<<< Updated upstream
 
 Plataforma de trivia interactivas en tiempo real. Proyecto integrador de la
 materia Tecnologías de Desarrollo en el Servidor.
@@ -65,5 +64,3 @@ materia Tecnologías de Desarrollo en el Servidor.
 
 - [Diseño inicial de la base de datos](./docs/database.md)
 - [Tablero de trabajo](./docs/tablero-trabajo.md)
-=======
->>>>>>> Stashed changes

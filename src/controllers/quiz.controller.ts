@@ -8,11 +8,15 @@ import { User } from '../models/user.model';
  * GET /quizzes?q=&tags=&page=&limit=
  */
 export const getQuizzes = asyncHandler(async (req: Request, res: Response) => {
-    const { q, tags } = req.query;
+    const { q, tags, owner } = req.query;
     const page = Math.max(Number(req.query.page) || 1, 1);
     const limit = Math.max(Number(req.query.limit) || 10, 1);
 
     const filtro: Record<string, unknown> = { isPublic: true };
+
+    if (owner) {
+        filtro.owner = String(owner);
+    }
 
     if (q) {
         filtro.title = { $regex: String(q), $options: 'i' };
