@@ -1,5 +1,5 @@
-import { Router } from "express";
-import { getUserProfile, getUserQuizzes, getUserMatches } from "../controllers/user.controller";
+import { Router } from 'express';
+import { getUserProfile, getUserQuizzes, getUserMatches } from '../controllers/user.controller';
 
 const router = Router();
 
@@ -19,7 +19,7 @@ const router = Router();
  *       200:
  *         description: Datos del usuario
  */
-router.get("/:id", getUserProfile);
+router.get('/:id', getUserProfile);
 
 /**
  * @swagger
@@ -37,7 +37,7 @@ router.get("/:id", getUserProfile);
  *       200:
  *         description: Lista de quizzes del usuario
  */
-router.get("/:id/quizzes", getUserQuizzes);
+router.get('/:id/quizzes', getUserQuizzes);
 
 /**
  * @swagger
@@ -55,9 +55,6 @@ router.get("/:id/quizzes", getUserQuizzes);
  *       200:
  *         description: Lista partidas del usuario
  */
-router.get("/:id/matches", getUserMatches);
-
-
-
+router.get('/:id/matches', getUserMatches);
 
 export default router;

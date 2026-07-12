@@ -1,5 +1,13 @@
-import { Router } from "express";
-import { getQuizzes, createQuiz, generateQuiz, getQuizById, updateQuiz, deleteQuiz, uploadQuizImage } from "../controllers/quiz.controller";
+import { Router } from 'express';
+import {
+    getQuizzes,
+    createQuiz,
+    generateQuiz,
+    getQuizById,
+    updateQuiz,
+    deleteQuiz,
+    uploadQuizImage,
+} from '../controllers/quiz.controller';
 
 const router = Router();
 
@@ -17,14 +25,14 @@ const router = Router();
  *           example: superhéroes
  *         required: false
  *         description: Texto de búsqueda para filtrar quizzes
- * 
+ *
  *       - in: query
  *         name: tags
  *         schema:
- *           type: string   
+ *           type: string  
  *         required: false
  *         description: "Tags separados por coma (ej: ciencia,literatura,superhéroes)"
- * 
+ *
  *       - in: query
  *         name: page
  *         schema:
@@ -32,7 +40,7 @@ const router = Router();
  *           default: 1
  *         required: false
  *         description: Número de página
- * 
+ *
  *       - in: query
  *         name: limit
  *         schema:
@@ -40,12 +48,12 @@ const router = Router();
  *           default: 10
  *         required: false
  *         description: Cantidad de resultados por página
- * 
+ *
  *     responses:
  *       200:
  *         description: Listado de quizzes
  */
-router.get("/", getQuizzes);
+router.get('/', getQuizzes);
 
 /**
  * @swagger
@@ -57,7 +65,7 @@ router.get("/", getQuizzes);
  *       201:
  *         description: Quiz creado
  */
-router.post("/", createQuiz);
+router.post('/', createQuiz);
 
 /**
  * @swagger
@@ -69,7 +77,7 @@ router.post("/", createQuiz);
  *       202:
  *         description: Preguntas generadas
  */
-router.post("/generate", generateQuiz);
+router.post('/generate', generateQuiz);
 
 /**
  * @swagger
@@ -87,8 +95,7 @@ router.post("/generate", generateQuiz);
  *       200:
  *         description: Url de la imágen
  */
-router.post("/:id/image", uploadQuizImage);
-
+router.post('/:id/image', uploadQuizImage);
 
 /**
  * @swagger
@@ -130,10 +137,8 @@ router.post("/:id/image", uploadQuizImage);
  *       200:
  *         description: Quiz eliminado
  */
-router.get("/:id", getQuizById);
-router.put("/:id", updateQuiz);
-router.delete("/:id", deleteQuiz);
-
-
+router.get('/:id', getQuizById);
+router.put('/:id', updateQuiz);
+router.delete('/:id', deleteQuiz);
 
 export default router;

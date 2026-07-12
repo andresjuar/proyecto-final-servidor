@@ -1,11 +1,9 @@
 import express from 'express';
 import router from './routes';
-import { engine } from 'express-handlebars';
 
 let app: express.Application;
 export function createApp() {
     app = express();
-
 
     // extender app
 
@@ -14,6 +12,6 @@ export function createApp() {
     return app;
 }
 
-export function getApp(){
+export function getApp() {
     return app;
 }

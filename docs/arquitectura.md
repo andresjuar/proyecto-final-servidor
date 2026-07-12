@@ -1,12 +1,11 @@
 # Arquitectura del sistema
 
 ## Idea General del Proyecto
+
 RicoQuiz+ sigue una arquitectura **MVC** sobre Node.js/Express, con dos
 canales de comunicación con el cliente: **REST** (operaciones CRUD y auth) y
 **WebSockets con Socket.io** (juego en tiempo real: lobby, preguntas,
 puntajes, reconexión).
-
-
 
 ## Decisiones de diseño
 
@@ -17,7 +16,7 @@ puntajes, reconexión).
 - **Arquitectura MVC** con separación clara de rutas/controladores/modelos
   para poder testear cada capa de forma aislada con Jest.
 - **Socket.io en vez de `ws` puro**: simplifica reconexión automática,
-  *rooms* nativos y *namespaces*, resolviendo de raíz el problema de
+  _rooms_ nativos y _namespaces_, resolviendo de raíz el problema de
   reconexión entre páginas que se manejaba manualmente en la versión anterior.
 - **Documentación Swagger generada desde el código** (JSDoc en las rutas)
   para que la documentación de la API no se desincronice del código real.

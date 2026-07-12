@@ -55,6 +55,6 @@ router.get('/user/:userId', getMatchesByUser);
  *       200:
  *         description: Resultado y detalles de la partida
  */
-router.get("/:id", getMatchById);
+router.get('/:id', getMatchById);
 
 export default router;

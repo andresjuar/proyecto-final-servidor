@@ -4,11 +4,9 @@ import matchRoutes from './match.routes';
 import quizRoutes from './quiz.routes';
 import userRoutes from './user.routes';
 
-
 const router = Router();
 
 router.use(json());
-
 
 /**
  * @swagger
@@ -22,12 +20,12 @@ router.use(json());
  *              description: falta el token de autorización
  */
 router.get('/', (req, res) => {
-    res.send("Proyecto final Servidor Adan y Andres");
+    res.send('Proyecto final Servidor Adan y Andres');
 });
 
-router.use('/auth',authRoutes);
-router.use("/users", userRoutes);
-router.use("/quizzes", quizRoutes);
-router.use("/matches", matchRoutes);
+router.use('/auth', authRoutes);
+router.use('/users', userRoutes);
+router.use('/quizzes', quizRoutes);
+router.use('/matches', matchRoutes);
 
 export default router;

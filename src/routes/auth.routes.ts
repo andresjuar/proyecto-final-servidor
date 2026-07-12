@@ -1,10 +1,7 @@
-import { Router } from "express";
-import { googleCallback, googleAuth, logout } from "../controllers/auth.controller";
-
+import { Router } from 'express';
+import { googleCallback, googleAuth, logout } from '../controllers/auth.controller';
 
 const router = Router();
-
-
 
 /**
  * @swagger
@@ -16,7 +13,7 @@ const router = Router();
  *       200:
  *         description: Redirección a Google, que en este momento es dummy
  */
-router.get("/google", googleAuth);
+router.get('/google', googleAuth);
 
 /**
  * @swagger
@@ -28,7 +25,7 @@ router.get("/google", googleAuth);
  *       200:
  *         description: Sesión iniciada
  */
-router.get("/google/callback", googleCallback);
+router.get('/google/callback', googleCallback);
 
 /**
  * @swagger
@@ -40,7 +37,6 @@ router.get("/google/callback", googleCallback);
  *       200:
  *         description: Sesión cerrada
  */
-router.post("/logout", logout);
+router.post('/logout', logout);
 
 export default router;
-

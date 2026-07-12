@@ -2,10 +2,10 @@ import js from '@eslint/js';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
 import { defineConfig } from 'eslint/config';
-import prettier from 'eslint-config-prettier'
+import prettier from 'eslint-config-prettier';
 
 export default defineConfig([
-    { ignores: ['dist/**', 'node_modules/**'] },
+    { ignores: ['dist/**', 'node_modules/**', 'jest.config.js'] },
     {
         files: ['**/*.{js,mjs,cjs,ts,mts,cts}'],
         plugins: { js },
@@ -24,5 +24,5 @@ export default defineConfig([
             'no-console': 'off',
         },
     },
-    prettier
+    prettier,
 ]);
