@@ -43,7 +43,7 @@ materia Tecnologías de Desarrollo en el Servidor.
     cp .env.example .env
     ```
 
-4. Levantar el servidor en modo desarrollo:
+4. Iniciar el servidor en modo desarrollo:
 
     ```bash
     npm run dev

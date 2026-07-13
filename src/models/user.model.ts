@@ -9,7 +9,6 @@ export interface IUser extends Document {
     createdQuizzes: Types.ObjectId[];
     createdAt: Date;
     updatedAt: Date;
-    comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -47,7 +46,7 @@ const userSchema = new Schema<IUser>(
         },
         password: {
             type: String,
-            required: [true, 'La contraseña es requerida'],
+            required: [true, 'El password es requerido'],
             minlength: [8, 'La contraseña debe tener al menos 8 caracteres'],
             select: false,
         },

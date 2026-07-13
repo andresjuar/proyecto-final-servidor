@@ -3,6 +3,7 @@ import { asyncHandler } from '../utils/asyncHandler';
 import { AppError } from '../utils/AppError';
 import { User } from '../models/user.model';
 import { generarTokenJWT } from '../utils/jwt';
+import bcrypt from 'bcrypt';
 
 /**
  * POST /auth/register
@@ -19,7 +20,9 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
         throw new AppError('El correo ya está registrado', 400);
     }
 
-    const user = await User.create({ email, displayName, password });
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = await User.create({ email, displayName, password: hashedPassword });
 
     const token = generarTokenJWT({ id: user._id.toString(), email: user.email });
 
@@ -49,7 +52,7 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
         throw new AppError('Credenciales inválidas', 401);
     }
 
-    const coincide = await user.comparePassword(password);
+    const coincide = await bcrypt.compare(password, user.password);
     if (!coincide) {
         throw new AppError('Credenciales inválidas', 401);
     }
@@ -58,7 +61,6 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
 
     return res.status(200).json({ token });
 });
-
 /**
  * GET /auth/me
  */
