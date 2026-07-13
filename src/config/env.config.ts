@@ -12,4 +12,5 @@ export const env = {
     nodeEnv: process.env.NODE_ENV || 'development',
     jwtSecret: required('JWT_SECRET'),
     jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
+    geminiApiKey: process.env.GEMINI_API_KEY || '',
 };
