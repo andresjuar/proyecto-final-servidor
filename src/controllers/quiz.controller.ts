@@ -1,8 +1,9 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { asyncHandler } from '../utils/asyncHandler';
 import { AppError } from '../utils/AppError';
 import { Quiz } from '../models/quiz.model';
 import { User } from '../models/user.model';
+import { generateTriviaQuestions } from '../services/Ai.service';
 
 /**
  * GET /quizzes?q=&tags=&page=&limit=
@@ -65,18 +66,36 @@ export const createQuiz = asyncHandler(async (req: Request, res: Response) => {
 /**
  * POST /quizzes/generate
  */
-export const generateQuiz = asyncHandler(async (req: Request, res: Response) => {
-    const { topic, numQuestions } = req.body;
-
+export const generateQuiz = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+    const { topic, numQuestions, title, description, isPublic, tags } = req.body;
+ 
     if (!topic) {
         throw new AppError('El topic es requerido', 400);
     }
-
-    return res.status(202).json({
+ 
+    const cantidad = Number(numQuestions) || 5;
+ 
+    let preguntasGeneradas;
+    try {
+        preguntasGeneradas = await generateTriviaQuestions(topic, cantidad);
+    } catch (error) {
+        if (error instanceof AppError) {
+            throw error;
+        }
+        throw new AppError('No se pudieron generar las preguntas con IA, intenta de nuevo', 502);
+    }
+ 
+    req.body = {
+        title: title ?? `Quiz de ${topic}`,
+        description: description ?? '',
         topic,
-        questions: [],
-        _pendiente: `Integración con Gemini AI pendiente (numQuestions solicitado: ${numQuestions ?? 5})`,
-    });
+        isPublic: isPublic ?? false,
+        tags: tags ?? [],
+        generatedByAI: true,
+        questions: preguntasGeneradas,
+    };
+ 
+    return createQuiz(req, res, next);
 });
 
 /**
