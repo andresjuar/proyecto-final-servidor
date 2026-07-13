@@ -68,13 +68,13 @@ export const createQuiz = asyncHandler(async (req: Request, res: Response) => {
  */
 export const generateQuiz = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
     const { topic, numQuestions, title, description, isPublic, tags } = req.body;
- 
+
     if (!topic) {
         throw new AppError('El topic es requerido', 400);
     }
- 
+
     const cantidad = Number(numQuestions) || 5;
- 
+
     let preguntasGeneradas;
     try {
         preguntasGeneradas = await generateTriviaQuestions(topic, cantidad);
@@ -84,7 +84,7 @@ export const generateQuiz = asyncHandler(async (req: Request, res: Response, nex
         }
         throw new AppError('No se pudieron generar las preguntas con IA, intenta de nuevo', 502);
     }
- 
+
     req.body = {
         title: title ?? `Quiz de ${topic}`,
         description: description ?? '',
@@ -94,7 +94,7 @@ export const generateQuiz = asyncHandler(async (req: Request, res: Response, nex
         generatedByAI: true,
         questions: preguntasGeneradas,
     };
- 
+
     return createQuiz(req, res, next);
 });
 

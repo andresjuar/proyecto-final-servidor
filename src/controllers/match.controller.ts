@@ -130,6 +130,16 @@ export const updateMatch = asyncHandler(async (req, res: Response) => {
     const { id } = req.params;
     const { status, startedAt, finishedAt } = req.body;
 
+    const match = await Match.findById(id);
+
+    if (!match) {
+        throw new AppError('Partida no encontrada', 404);
+    }
+
+    if (match.host.toString() !== req.user!.id) {
+        throw new AppError('No tienes permiso para editar esta partida', 403);
+    }
+
     const cambios: Record<string, unknown> = {};
 
     if (status !== undefined) {
@@ -146,13 +156,9 @@ export const updateMatch = asyncHandler(async (req, res: Response) => {
     if (startedAt !== undefined) cambios.startedAt = startedAt;
     if (finishedAt !== undefined) cambios.finishedAt = finishedAt;
 
-    const match = await Match.findByIdAndUpdate(id, { $set: cambios }, { new: true, runValidators: true });
+    const matchActualizado = await Match.findByIdAndUpdate(id, { $set: cambios }, { new: true, runValidators: true });
 
-    if (!match) {
-        throw new AppError('Partida no encontrada', 404);
-    }
-
-    return res.status(200).json(match);
+    return res.status(200).json(matchActualizado);
 });
 
 /**
@@ -165,6 +171,10 @@ export const deleteMatch = asyncHandler(async (req, res: Response) => {
 
     if (!match) {
         throw new AppError('Partida no encontrada', 404);
+    }
+
+    if (match.host.toString() !== req.user!.id) {
+        throw new AppError('No tienes permiso para eliminar esta partida', 403);
     }
 
     return res.status(200).json({ message: 'Partida eliminada' });

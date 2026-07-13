@@ -155,6 +155,8 @@ router.post('/', authMiddleware, createQuiz);
  *   post:
  *     tags: [Quizzes]
  *     summary: Genera un quiz automáticamente mediante IA a partir de un tema
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -179,7 +181,7 @@ router.post('/', authMiddleware, createQuiz);
  *       400:
  *         description: El topic es requerido
  */
-router.post('/generate', generateQuiz);
+router.post('/generate', authMiddleware, generateQuiz);
 
 /**
  * @swagger
@@ -187,6 +189,8 @@ router.post('/generate', generateQuiz);
  *   post:
  *     tags: [Quizzes]
  *     summary: Subir la imagen de portada de un quiz
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -199,7 +203,7 @@ router.post('/generate', generateQuiz);
  *       404:
  *         description: Quiz no encontrado
  */
-router.post('/:id/image', uploadQuizImage);
+router.post('/:id/image', authMiddleware, uploadQuizImage);
 
 /**
  * @swagger

@@ -31,7 +31,7 @@ const router = Router();
  *               quiz:
  *                 type: string
  *                 description: ObjectId del quiz que se jugará
- *                 example: 6650f2a3b5e4c10012345678
+ *                 example: 6a5459a21c95d7b04766c4a8
  *     responses:
  *       201:
  *         description: Partida creada (incluye el roomCode generado)
@@ -114,6 +114,8 @@ router.get('/user/:userId', getMatchesByUser);
  *   put:
  *     tags: [Matches]
  *     summary: Actualiza el status y/o timestamps de una partida
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -149,6 +151,8 @@ router.get('/user/:userId', getMatchesByUser);
  *   delete:
  *     tags: [Matches]
  *     summary: Elimina una partida
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -162,7 +166,7 @@ router.get('/user/:userId', getMatchesByUser);
  *         description: Partida no encontrada
  */
 router.get('/:id', getMatchById);
-router.put('/:id', updateMatch);
-router.delete('/:id', deleteMatch);
+router.put('/:id', authMiddleware, updateMatch);
+router.delete('/:id', authMiddleware, deleteMatch);
 
 export default router;
