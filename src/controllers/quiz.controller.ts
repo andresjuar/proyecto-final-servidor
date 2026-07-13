@@ -101,6 +101,16 @@ export const updateQuiz = asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
     const { title, description, coverImageUrl, topic, isPublic, tags, questions } = req.body;
 
+    const quiz = await Quiz.findById(id);
+
+    if (!quiz) {
+        throw new AppError('Quiz no encontrado', 404);
+    }
+
+    if (quiz.owner.toString() !== req.user!.id) {
+        throw new AppError('No tienes permiso para editar este quiz', 403);
+    }
+
     const camposPermitidos: Record<string, unknown> = {};
     if (title !== undefined) camposPermitidos.title = title;
     if (description !== undefined) camposPermitidos.description = description;
@@ -110,16 +120,16 @@ export const updateQuiz = asyncHandler(async (req: Request, res: Response) => {
     if (tags !== undefined) camposPermitidos.tags = tags;
     if (questions !== undefined) camposPermitidos.questions = questions;
 
-    const quiz = await Quiz.findByIdAndUpdate(id, camposPermitidos, {
-        new: true,
-        runValidators: true,
-    });
+    const quizActualizado = await Quiz.findByIdAndUpdate(
+        id,
+        { $set: camposPermitidos },
+        {
+            new: true,
+            runValidators: true,
+        },
+    );
 
-    if (!quiz) {
-        throw new AppError('Quiz no encontrado', 404);
-    }
-
-    return res.status(200).json(quiz);
+    return res.status(200).json(quizActualizado);
 });
 
 /**
@@ -128,11 +138,17 @@ export const updateQuiz = asyncHandler(async (req: Request, res: Response) => {
 export const deleteQuiz = asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
 
-    const quiz = await Quiz.findByIdAndDelete(id);
+    const quiz = await Quiz.findById(id);
 
     if (!quiz) {
         throw new AppError('Quiz no encontrado', 404);
     }
+
+    if (quiz.owner.toString() !== req.user!.id) {
+        throw new AppError('No tienes permiso para eliminar este quiz', 403);
+    }
+
+    await quiz.deleteOne();
 
     await User.findByIdAndUpdate(quiz.owner, { $pull: { createdQuizzes: quiz._id } });
 

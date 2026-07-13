@@ -220,7 +220,9 @@ router.post('/:id/image', uploadQuizImage);
  *         description: Quiz no encontrado
  *   put:
  *     tags: [Quizzes]
- *     summary: Edita un quiz existente
+ *     summary: Edita parcialmente un quiz existente (solo los campos enviados serán actualizados)
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -233,50 +235,14 @@ router.post('/:id/image', uploadQuizImage);
  *         application/json:
  *           schema:
  *             type: object
+ *             description: Puedes enviar solo los campos que deseas actualizar
  *             properties:
  *               title:
  *                 type: string
- *                 minLength: 3
- *                 maxLength: 100
- *                 example: Quiz de superhéroes actualizado
- *               description:
- *                 type: string
- *                 maxLength: 500
- *               coverImageUrl:
- *                 type: string
- *               topic:
- *                 type: string
+ *                 example: Superhéroes Actualizado
  *               isPublic:
  *                 type: boolean
- *               tags:
- *                 type: array
- *                 items:
- *                   type: string
- *               questions:
- *                 type: array
- *                 minItems: 1
- *                 items:
- *                   type: object
- *                   required:
- *                     - question
- *                     - options
- *                     - correctIndex
- *                   properties:
- *                     question:
- *                       type: string
- *                     options:
- *                       type: array
- *                       minItems: 2
- *                       items:
- *                         type: string
- *                     correctIndex:
- *                       type: integer
- *                     timeLimitSeconds:
- *                       type: integer
- *                       minimum: 5
- *                       maximum: 120
- *                     imageUrl:
- *                       type: string
+ *                 example: true
  *     responses:
  *       200:
  *         description: Quiz actualizado
@@ -285,6 +251,8 @@ router.post('/:id/image', uploadQuizImage);
  *   delete:
  *     tags: [Quizzes]
  *     summary: Elimina un quiz
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -298,7 +266,7 @@ router.post('/:id/image', uploadQuizImage);
  *         description: Quiz no encontrado
  */
 router.get('/:id', getQuizById);
-router.put('/:id', updateQuiz);
-router.delete('/:id', deleteQuiz);
+router.put('/:id', authMiddleware, updateQuiz);
+router.delete('/:id', authMiddleware, deleteQuiz);
 
 export default router;

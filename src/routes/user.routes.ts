@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { getUserProfile, updateUser, deleteUser } from '../controllers/user.controller';
+import { authMiddleware } from '../middlewares/auth.middleware';
 
 const router = Router();
 
@@ -26,6 +27,8 @@ const router = Router();
  *     parameters:
  *       - in: path
  *         name: id
+ *     security:
+ *       - bearerAuth: []
  *         required: true
  *         schema:
  *           type: string
@@ -50,6 +53,8 @@ const router = Router();
  *   delete:
  *     tags: [Users]
  *     summary: Elimina la cuenta de un usuario
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -63,7 +68,7 @@ const router = Router();
  *         description: Usuario no encontrado
  */
 router.get('/:id', getUserProfile);
-router.put('/:id', updateUser);
-router.delete('/:id', deleteUser);
+router.put('/:id', authMiddleware, updateUser);
+router.delete('/:id', authMiddleware, deleteUser);
 
 export default router;

@@ -22,10 +22,7 @@ export interface AIQuestion {
  * Adaptado del proyecto antecesor (Web-Game/BACKEND/services/aiService.js),
  * mapeando "correct" -> "correctIndex" para calzar con el schema de Quiz.
  */
-export async function generateTriviaQuestions(
-    topic: string,
-    numQuestions: number,
-): Promise<AIQuestion[]> {
+export async function generateTriviaQuestions(topic: string, numQuestions: number): Promise<AIQuestion[]> {
     if (!env.geminiApiKey) {
         throw new AppError('GEMINI_API_KEY no está configurada en el servidor', 500);
     }
