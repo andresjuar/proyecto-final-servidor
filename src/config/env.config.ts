@@ -23,4 +23,10 @@ export const env = {
     smtpPass: process.env.SMTP_PASS || '',
     mailFrom: process.env.MAIL_FROM || process.env.SMTP_USER || '',
     appBaseUrl: process.env.APP_BASE_URL || `http://localhost:${Number(process.env.PORT) || 3000}`,
+    // Origen permitido para Socket.io (y para CORS de la API en general si lo agregan después).
+    // '*' es cómodo en desarrollo, pero conviene poner el dominio real del frontend en producción.
+
+    cloudinaryCloudName: process.env.CLOUDINARY_CLOUD_NAME || '',
+    cloudinaryApiKey: process.env.CLOUDINARY_API_KEY || '',
+    cloudinaryApiSecret: process.env.CLOUDINARY_API_SECRET || '',
 };

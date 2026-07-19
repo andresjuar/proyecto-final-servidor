@@ -4,6 +4,7 @@ import { AppError } from '../utils/AppError';
 import { Quiz } from '../models/quiz.model';
 import { User } from '../models/user.model';
 import { generateTriviaQuestions } from '../services/Ai.service';
+import { uploadImageBuffer } from '../services/Cloudinary.service';
 
 /**
  * GET /quizzes?q=&tags=&page=&limit=
@@ -175,18 +176,62 @@ export const deleteQuiz = asyncHandler(async (req: Request, res: Response) => {
 });
 
 /**
- * POST /quizzes/:id/image
+ * POST /quizzes/:id/image  (multipart/form-data, campo "image")
+ *
+ * Sube/reemplaza la imagen de PORTADA del quiz. Solo el owner puede hacerlo.
  */
 export const uploadQuizImage = asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
 
     const quiz = await Quiz.findById(id);
-
     if (!quiz) {
         throw new AppError('Quiz no encontrado', 404);
     }
+    if (quiz.owner.toString() !== req.user!.id) {
+        throw new AppError('No tienes permiso para editar este quiz', 403);
+    }
+    if (!req.file) {
+        throw new AppError('Debes subir un archivo de imagen (campo "image")', 400);
+    }
 
-    return res.status(200).json({
-        imageUrl: 'https://picsum.photos/seed/uploaded/400/200',
-    });
+    const { url } = await uploadImageBuffer(req.file.buffer, req.file.mimetype, 'ricoquiz/quizzes');
+
+    quiz.coverImageUrl = url;
+    await quiz.save();
+
+    return res.status(200).json({ imageUrl: url });
+});
+
+/**
+ * POST /quizzes/:id/questions/:questionIndex/image  (multipart/form-data, campo "image")
+ *
+ * Sube/reemplaza la imagen de UNA PREGUNTA específica dentro del quiz. Las
+ * preguntas son subdocumentos sin _id propio (`{ _id: false }` en el schema),
+ * por eso se referencian por índice, igual que ya se hace en game.engine.ts.
+ * Solo el owner puede hacerlo.
+ */
+export const uploadQuestionImage = asyncHandler(async (req: Request, res: Response) => {
+    const { id, questionIndex } = req.params;
+    const index = Number(questionIndex);
+
+    const quiz = await Quiz.findById(id);
+    if (!quiz) {
+        throw new AppError('Quiz no encontrado', 404);
+    }
+    if (quiz.owner.toString() !== req.user!.id) {
+        throw new AppError('No tienes permiso para editar este quiz', 403);
+    }
+    if (!Number.isInteger(index) || index < 0 || index >= quiz.questions.length) {
+        throw new AppError('questionIndex fuera de rango para este quiz', 400);
+    }
+    if (!req.file) {
+        throw new AppError('Debes subir un archivo de imagen (campo "image")', 400);
+    }
+
+    const { url } = await uploadImageBuffer(req.file.buffer, req.file.mimetype, 'ricoquiz/questions');
+
+    quiz.questions[index].imageUrl = url;
+    await quiz.save();
+
+    return res.status(200).json({ imageUrl: url });
 });
