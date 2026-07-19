@@ -6,6 +6,7 @@ export interface IUser extends Document {
     displayName: string;
     avatarUrl?: string;
     password: string;
+    isActive: boolean;
     createdQuizzes: Types.ObjectId[];
     createdAt: Date;
     updatedAt: Date;
@@ -49,6 +50,10 @@ const userSchema = new Schema<IUser>(
             required: [true, 'El password es requerido'],
             minlength: [8, 'La contraseña debe tener al menos 8 caracteres'],
             select: false,
+        },
+        isActive: {
+            type: Boolean,
+            default: false,
         },
         createdQuizzes: {
             type: [{ type: Schema.Types.ObjectId, ref: 'Quiz' }],
