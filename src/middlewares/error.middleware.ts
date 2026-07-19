@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
 import { AppError } from '../utils/AppError';
+import multer from 'multer';
 
 export function errorMiddleware(err: unknown, req: Request, res: Response, next: NextFunction) {
     console.error(err);
@@ -21,6 +22,10 @@ export function errorMiddleware(err: unknown, req: Request, res: Response, next:
         return res.status(400).json({
             message: `Identificador inválido: ${err.value}`,
         });
+    }
+
+    if (err instanceof multer.MulterError) {
+        return res.status(400).json({ message: `Error al subir el archivo: ${err.message}` });
     }
 
     return res.status(500).json({

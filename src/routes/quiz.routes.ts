@@ -7,8 +7,10 @@ import {
     updateQuiz,
     deleteQuiz,
     uploadQuizImage,
+    uploadQuestionImage,
 } from '../controllers/quiz.controller';
 import { authMiddleware } from '../middlewares/auth.middleware';
+import { uploadImageMiddleware } from '../middlewares/upload.middleware';
 
 const router = Router();
 
@@ -188,7 +190,7 @@ router.post('/generate', authMiddleware, generateQuiz);
  * /quizzes/{id}/image:
  *   post:
  *     tags: [Quizzes]
- *     summary: Subir la imagen de portada de un quiz
+ *     summary: Sube/reemplaza la imagen de portada de un quiz (Cloudinary)
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -197,13 +199,75 @@ router.post('/generate', authMiddleware, generateQuiz);
  *         required: true
  *         schema:
  *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required: [image]
+ *             properties:
+ *               image:
+ *                 type: string
+ *                 format: binary
  *     responses:
  *       200:
- *         description: Url de la imágen
+ *         description: Url de la imagen subida
+ *       400:
+ *         description: Falta el archivo, no es una imagen, o pesa más de 5MB
+ *       403:
+ *         description: No eres el owner de este quiz
  *       404:
  *         description: Quiz no encontrado
+ *       502:
+ *         description: Falló la subida a Cloudinary
  */
-router.post('/:id/image', authMiddleware, uploadQuizImage);
+router.post('/:id/image', authMiddleware, uploadImageMiddleware, uploadQuizImage);
+
+/**
+ * @swagger
+ * /quizzes/{id}/questions/{questionIndex}/image:
+ *   post:
+ *     tags: [Quizzes]
+ *     summary: Sube/reemplaza la imagen de una pregunta específica del quiz (Cloudinary)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: path
+ *         name: questionIndex
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Índice (base 0) de la pregunta dentro del arreglo questions del quiz
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required: [image]
+ *             properties:
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Url de la imagen subida
+ *       400:
+ *         description: Falta el archivo, no es una imagen, pesa más de 5MB, o questionIndex fuera de rango
+ *       403:
+ *         description: No eres el owner de este quiz
+ *       404:
+ *         description: Quiz no encontrado
+ *       502:
+ *         description: Falló la subida a Cloudinary
+ */
+router.post('/:id/questions/:questionIndex/image', authMiddleware, uploadImageMiddleware, uploadQuestionImage);
 
 /**
  * @swagger

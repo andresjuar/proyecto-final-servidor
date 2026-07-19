@@ -16,4 +16,8 @@ export const env = {
     // Origen permitido para Socket.io (y para CORS de la API en general si lo agregan después).
     // '*' es cómodo en desarrollo, pero conviene poner el dominio real del frontend en producción.
     corsOrigin: process.env.CORS_ORIGIN || '*',
+
+    cloudinaryCloudName: process.env.CLOUDINARY_CLOUD_NAME || '',
+    cloudinaryApiKey: process.env.CLOUDINARY_API_KEY || '',
+    cloudinaryApiSecret: process.env.CLOUDINARY_API_SECRET || '',
 };
