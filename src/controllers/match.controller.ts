@@ -4,10 +4,12 @@ import { Quiz } from '../models/quiz.model';
 import { User } from '../models/user.model';
 import { AppError } from '../utils/AppError';
 import { asyncHandler } from '../utils/asyncHandler';
+import { generateTriviaQuestions } from '../services/Ai.service';
 
 const ROOM_CODE_LENGTH = 4;
 const ROOM_CODE_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 const MAX_ROOM_CODE_ATTEMPTS = 10;
+const DEFAULT_AI_NUM_QUESTIONS = 10;
 
 function generateRoomCode(): string {
     let code = '';
@@ -50,30 +52,135 @@ export const checkRoomExists = asyncHandler(async (req, res: Response) => {
 
 /**
  * POST /matches
+ *
+ * El quiz YA NO es obligatorio para crear la partida: primero se crea la sala
+ * (con su roomCode), y el quiz se asigna después con PATCH /matches/:id/quiz
+ * (uno ya existente) o POST /matches/:id/generate-quiz (generado con IA),
+ * en cualquier momento mientras la partida siga en 'waiting'.
+ *
+ * Se mantiene compatibilidad: si de cualquier forma mandan `quiz` en el body,
+ * se valida y se asigna de una vez (por si el frontend viejo todavía lo manda así).
  */
 export const createMatch = asyncHandler(async (req, res: Response) => {
     const { quiz } = req.body;
     const host = req.user!.id;
-
-    const quizDoc = await Quiz.findById(quiz);
-    if (!quizDoc) {
-        throw new AppError('El quiz especificado no existe', 404);
-    }
 
     const hostDoc = await User.findById(host);
     if (!hostDoc) {
         throw new AppError('El host especificado no existe', 404);
     }
 
+    let quizId: string | undefined;
+    if (quiz) {
+        const quizDoc = await Quiz.findById(quiz);
+        if (!quizDoc) {
+            throw new AppError('El quiz especificado no existe', 404);
+        }
+        quizId = quizDoc._id.toString();
+    }
+
     const roomCode = await generateUniqueRoomCode();
 
     const match = await Match.create({
-        quiz,
+        quiz: quizId,
         host,
         roomCode,
         status: 'waiting',
         players: [],
     });
+
+    return res.status(201).json(match);
+});
+
+/**
+ * PATCH /matches/:id/quiz
+ *
+ * Asigna un quiz YA EXISTENTE a una partida en 'waiting'. Solo el host puede
+ * hacerlo, y puede llamarlo varias veces para cambiar de quiz mientras la
+ * partida no haya arrancado.
+ */
+export const selectQuizForMatch = asyncHandler(async (req, res: Response) => {
+    const { id } = req.params;
+    const { quizId } = req.body;
+
+    if (!quizId) {
+        throw new AppError('quizId es requerido', 400);
+    }
+
+    const match = await Match.findById(id);
+    if (!match) {
+        throw new AppError('Partida no encontrada', 404);
+    }
+    if (match.host.toString() !== req.user!.id) {
+        throw new AppError('No tienes permiso para editar esta partida', 403);
+    }
+    if (match.status !== 'waiting') {
+        throw new AppError('Solo se puede cambiar el quiz mientras la partida está en espera', 400);
+    }
+
+    const quiz = await Quiz.findById(quizId);
+    if (!quiz) {
+        throw new AppError('El quiz especificado no existe', 404);
+    }
+
+    match.quiz = quiz._id;
+    await match.save();
+
+    return res.status(200).json(match);
+});
+
+/**
+ * POST /matches/:id/generate-quiz
+ *
+ * Genera un quiz nuevo con IA a partir de un tema y lo asigna a la partida.
+ * Solo el host, y solo mientras la partida esté en 'waiting'. Se puede llamar
+ * varias veces para regenerar/cambiar de tema antes de iniciar: cada llamada
+ * crea un Quiz nuevo (el anterior, si había uno, queda huérfano sin borrarse).
+ */
+export const generateQuizForMatch = asyncHandler(async (req, res: Response) => {
+    const { id } = req.params;
+    const { topic, numQuestions } = req.body;
+
+    if (!topic) {
+        throw new AppError('El topic es requerido', 400);
+    }
+
+    const match = await Match.findById(id);
+    if (!match) {
+        throw new AppError('Partida no encontrada', 404);
+    }
+    if (match.host.toString() !== req.user!.id) {
+        throw new AppError('No tienes permiso para editar esta partida', 403);
+    }
+    if (match.status !== 'waiting') {
+        throw new AppError('Solo se puede generar un quiz mientras la partida está en espera', 400);
+    }
+
+    const cantidad = Number(numQuestions) || DEFAULT_AI_NUM_QUESTIONS;
+
+    let preguntasGeneradas;
+    try {
+        preguntasGeneradas = await generateTriviaQuestions(topic, cantidad);
+    } catch (error) {
+        if (error instanceof AppError) {
+            throw error;
+        }
+        throw new AppError('No se pudieron generar las preguntas con IA, intenta de nuevo', 502);
+    }
+
+    const quiz = await Quiz.create({
+        title: `Quiz de ${topic}`,
+        topic,
+        owner: match.host,
+        isPublic: false,
+        generatedByAI: true,
+        questions: preguntasGeneradas,
+    });
+
+    await User.findByIdAndUpdate(match.host, { $push: { createdQuizzes: quiz._id } });
+
+    match.quiz = quiz._id;
+    await match.save();
 
     return res.status(201).json(match);
 });
