@@ -15,7 +15,7 @@ materia Tecnologías de Desarrollo en el Servidor.
 | Tiempo real                  | Socket.io                              |
 | Autenticación                | OAuth 2.0 con Google  e inicio de sesión con correo y contraseña                 |
 | IA (generación de preguntas) | Gemini API                             |
-| Almacenamiento de imágenes   | Cloudinary / Supabase                  |
+| Almacenamiento de imágenes   | Cloudinary                  |
 | Documentación de API         | Swagger (OpenAPI 3.0)                  |
 | Pruebas                      | Jest                                   |
 | Calidad de código            | ESLint + Prettier                      |
@@ -73,3 +73,4 @@ materia Tecnologías de Desarrollo en el Servidor.
 - [Arquitectura del sistema](./docs/arquitectura.md)
 - [Diseño de la base de datos](./docs/database.md)
 - [Tablero de trabajo](./docs/tablero-trabajo.md)
+- [Funciones en Tiempo real](./docs/tiempo-real.md)
