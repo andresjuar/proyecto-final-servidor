@@ -1,4 +1,5 @@
 import { Options } from 'swagger-jsdoc';
+import { env } from './env.config';
 
 const port = process.env.PORT || 3000;
 
@@ -12,7 +13,7 @@ const swaggerConfig: Options = {
         },
         servers: [
             {
-                url: `http://localhost:${port}`,
+                url: env.appBaseUrl,
             },
         ],
         components: {
