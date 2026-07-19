@@ -13,4 +13,7 @@ export const env = {
     jwtSecret: required('JWT_SECRET'),
     jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
     geminiApiKey: process.env.GEMINI_API_KEY || '',
+    // Origen permitido para Socket.io (y para CORS de la API en general si lo agregan después).
+    // '*' es cómodo en desarrollo, pero conviene poner el dominio real del frontend en producción.
+    corsOrigin: process.env.CORS_ORIGIN || '*',
 };

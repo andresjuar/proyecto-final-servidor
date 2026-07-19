@@ -41,7 +41,7 @@ const matchSchema = new Schema(
         quiz: {
             type: Schema.Types.ObjectId,
             ref: 'Quiz',
-            required: true,
+            required: false, // se asigna después de crear la sala: si se selecciona o se genera por IA
         },
         host: {
             type: Schema.Types.ObjectId,

@@ -1,0 +1,701 @@
+<!doctype html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8" />
+        <title>RicoQuiz+ — Panel de prueba de sockets</title>
+        <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+        <style>
+            :root {
+                --bg: #0f1115;
+                --panel: #171a21;
+                --border: #2a2e39;
+                --text: #e6e6e6;
+                --muted: #8a8f98;
+                --accent: #6c5ce7;
+                --green: #2ecc71;
+                --red: #e74c3c;
+                --yellow: #f1c40f;
+                --blue: #3498db;
+            }
+            * {
+                box-sizing: border-box;
+            }
+            body {
+                margin: 0;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                background: var(--bg);
+                color: var(--text);
+                padding: 20px;
+            }
+            h1 {
+                font-size: 18px;
+                margin: 0 0 4px;
+            }
+            h2 {
+                font-size: 14px;
+                margin: 0 0 10px;
+                color: var(--muted);
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+            }
+            .subtitle {
+                color: var(--muted);
+                font-size: 13px;
+                margin-bottom: 20px;
+            }
+            .grid {
+                display: grid;
+                grid-template-columns: 340px 1fr;
+                gap: 16px;
+                align-items: start;
+            }
+            .panel {
+                background: var(--panel);
+                border: 1px solid var(--border);
+                border-radius: 10px;
+                padding: 14px;
+                margin-bottom: 16px;
+            }
+            label {
+                display: block;
+                font-size: 12px;
+                color: var(--muted);
+                margin: 8px 0 4px;
+            }
+            input,
+            textarea {
+                width: 100%;
+                background: #0d0f13;
+                border: 1px solid var(--border);
+                color: var(--text);
+                border-radius: 6px;
+                padding: 7px 8px;
+                font-size: 13px;
+                font-family: inherit;
+            }
+            button {
+                cursor: pointer;
+                border: none;
+                border-radius: 6px;
+                padding: 8px 12px;
+                font-size: 13px;
+                font-weight: 600;
+                margin: 4px 4px 0 0;
+                background: var(--accent);
+                color: white;
+            }
+            button:hover {
+                filter: brightness(1.1);
+            }
+            button:disabled {
+                opacity: 0.35;
+                cursor: not-allowed;
+            }
+            button.secondary {
+                background: #2a2e39;
+            }
+            button.danger {
+                background: var(--red);
+            }
+            button.option-btn {
+                display: block;
+                width: 100%;
+                text-align: left;
+                margin: 6px 0;
+                background: #23262f;
+            }
+            button.option-btn.correct {
+                background: var(--green);
+            }
+            button.option-btn.wrong {
+                background: var(--red);
+            }
+            .row {
+                display: flex;
+                gap: 8px;
+                flex-wrap: wrap;
+            }
+            .status-dot {
+                display: inline-block;
+                width: 9px;
+                height: 9px;
+                border-radius: 50%;
+                margin-right: 6px;
+                background: var(--red);
+                vertical-align: middle;
+            }
+            .status-dot.on {
+                background: var(--green);
+            }
+            .badge {
+                display: inline-block;
+                padding: 2px 8px;
+                border-radius: 999px;
+                font-size: 11px;
+                font-weight: 700;
+                text-transform: uppercase;
+                background: #2a2e39;
+                color: var(--muted);
+            }
+            .badge.state-question {
+                background: var(--blue);
+                color: white;
+            }
+            .badge.state-reveal {
+                background: var(--yellow);
+                color: black;
+            }
+            .badge.state-leaderboard {
+                background: var(--accent);
+                color: white;
+            }
+            .badge.state-finished {
+                background: var(--green);
+                color: black;
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 12px;
+            }
+            th,
+            td {
+                text-align: left;
+                padding: 4px 6px;
+                border-bottom: 1px solid var(--border);
+            }
+            th {
+                color: var(--muted);
+                font-weight: 600;
+            }
+            #log {
+                height: 480px;
+                overflow-y: auto;
+                background: #0a0b0e;
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                padding: 10px;
+                font-family: 'SF Mono', Consolas, monospace;
+                font-size: 11.5px;
+            }
+            .log-entry {
+                margin-bottom: 8px;
+                padding-bottom: 8px;
+                border-bottom: 1px dashed #1c1f27;
+            }
+            .log-time {
+                color: var(--muted);
+                margin-right: 6px;
+            }
+            .log-event {
+                font-weight: 700;
+            }
+            .log-event.recv-room {
+                color: var(--blue);
+            }
+            .log-event.recv-game {
+                color: var(--green);
+            }
+            .log-event.recv-error {
+                color: var(--red);
+            }
+            .log-event.sent {
+                color: var(--yellow);
+            }
+            .log-payload {
+                color: #b5b9c2;
+                white-space: pre-wrap;
+                margin-top: 2px;
+            }
+            .muted {
+                color: var(--muted);
+            }
+            #question-box {
+                margin-top: 10px;
+                padding: 10px;
+                background: #0d0f13;
+                border-radius: 8px;
+                border: 1px solid var(--border);
+            }
+            #question-timer {
+                font-weight: 700;
+                color: var(--yellow);
+            }
+        </style>
+    </head>
+    <body>
+        <h1>🎮 RicoQuiz+ — Panel de prueba de sockets</h1>
+        <div class="subtitle">
+            Conecta contra tu servidor local (namespace <code>/matches</code>). Abre esta misma página en varias
+            pestañas para simular al host y a varios jugadores a la vez.
+        </div>
+
+        <div class="grid">
+            <div>
+                <!-- Conexión -->
+                <div class="panel">
+                    <h2>Conexión</h2>
+                    <label>URL del servidor</label>
+                    <input id="server-url" value="http://localhost:3000" />
+
+                    <label>JWT (dejar vacío para entrar como invitado)</label>
+                    <textarea
+                        id="jwt-token"
+                        rows="3"
+                        placeholder="Pega aquí el token que te devuelve /auth/login"
+                    ></textarea>
+
+                    <div class="row" style="margin-top: 10px">
+                        <button id="btn-connect">Conectar</button>
+                        <button id="btn-disconnect" class="secondary" disabled>Desconectar</button>
+                    </div>
+                    <div style="margin-top: 8px">
+                        <span id="status-dot" class="status-dot"></span>
+                        <span id="status-text" class="muted">Desconectado</span>
+                    </div>
+                </div>
+
+                <!-- Sala -->
+                <div class="panel">
+                    <h2>Sala</h2>
+                    <label>Código de sala</label>
+                    <input id="room-code" placeholder="ABCD" maxlength="4" style="text-transform: uppercase" />
+
+                    <label>Nombre de invitado (solo si no hay JWT)</label>
+                    <input id="guest-name" placeholder="Ej. Invitado1" />
+
+                    <div class="row" style="margin-top: 10px">
+                        <button id="btn-join" disabled>Unirse</button>
+                        <button id="btn-leave" class="danger" disabled>Salir</button>
+                    </div>
+                </div>
+
+                <!-- Estado -->
+                <div class="panel">
+                    <h2>Mi estado</h2>
+                    <div>Rol: <b id="my-role">—</b></div>
+                    <div>Nombre: <b id="my-name">—</b></div>
+                    <div>Score: <b id="my-score">—</b></div>
+                    <div style="margin-top: 6px">Estado de la sala: <span id="room-state" class="badge">—</span></div>
+                </div>
+
+                <!-- Controles del host -->
+                <div class="panel" id="host-controls" style="display: none">
+                    <h2>Controles de host</h2>
+                    <div class="row">
+                        <button id="btn-start">Iniciar partida</button>
+                        <button id="btn-next">Siguiente pregunta</button>
+                        <button id="btn-reveal" class="secondary">Forzar reveal</button>
+                    </div>
+                    <div class="row" id="play-again-row" style="display: none; margin-top: 10px">
+                        <button id="btn-play-again" class="secondary">🔁 Jugar de nuevo (mismo room)</button>
+                    </div>
+                    <div id="new-match-info" class="muted" style="margin-top: 8px; font-size: 11.5px"></div>
+                </div>
+
+                <!-- Jugadores -->
+                <div class="panel">
+                    <h2>Jugadores en la sala</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Score</th>
+                                <th>Conectado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="players-table">
+                            <tr>
+                                <td colspan="3" class="muted">— nadie todavía —</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div>
+                <!-- Pregunta activa -->
+                <div class="panel">
+                    <h2>Pregunta activa</h2>
+                    <div id="question-box">
+                        <div class="muted">No hay ninguna pregunta activa todavía.</div>
+                    </div>
+                </div>
+
+                <!-- Log de eventos -->
+                <div class="panel">
+                    <h2>Log de eventos (crudo)</h2>
+                    <div id="log"></div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            // Estado local del panel (no confundir con el estado de la sala en el servidor)
+            let socket = null;
+            let myRole = null; // 'host' | 'player'
+            let currentQuestion = null; // último payload de game:question recibido
+            let alreadyAnsweredThisQuestion = false;
+
+            const el = (id) => document.getElementById(id);
+
+            // ---------- Log ----------
+
+            function log(direction, event, payload) {
+                const box = el('log');
+                const time = new Date().toLocaleTimeString();
+                const cls =
+                    direction === 'sent'
+                        ? 'sent'
+                        : event === 'error'
+                          ? 'recv-error'
+                          : event.startsWith('room:')
+                            ? 'recv-room'
+                            : 'recv-game';
+                const arrow = direction === 'sent' ? '→ enviado' : '← recibido';
+                const entry = document.createElement('div');
+                entry.className = 'log-entry';
+                entry.innerHTML =
+                    '<span class="log-time">' +
+                    time +
+                    '</span>' +
+                    '<span class="log-event ' +
+                    cls +
+                    '">' +
+                    arrow +
+                    ': ' +
+                    event +
+                    '</span>' +
+                    '<div class="log-payload">' +
+                    (payload !== undefined ? JSON.stringify(payload, null, 2) : '') +
+                    '</div>';
+                box.appendChild(entry);
+                box.scrollTop = box.scrollHeight;
+            }
+
+            // ---------- Conexión ----------
+
+            el('btn-connect').addEventListener('click', () => {
+                const url = el('server-url').value.trim();
+                const token = el('jwt-token').value.trim();
+
+                socket = io(url + '/matches', {
+                    auth: token ? { token } : {},
+                });
+
+                socket.on('connect', () => {
+                    el('status-dot').classList.add('on');
+                    el('status-text').textContent = 'Conectado (socket ' + socket.id + ')';
+                    el('btn-connect').disabled = true;
+                    el('btn-disconnect').disabled = false;
+                    el('btn-join').disabled = false;
+                    log('recv', 'connect', { socketId: socket.id });
+                });
+
+                socket.on('connect_error', (err) => {
+                    log('recv', 'connect_error', { message: err.message });
+                    el('status-text').textContent = 'Error de conexión: ' + err.message;
+                });
+
+                socket.on('disconnect', (reason) => {
+                    resetUiOnDisconnect();
+                    log('recv', 'disconnect', { reason });
+                });
+
+                // ----- Eventos de sala -----
+
+                socket.on('room:joined_ok', (payload) => {
+                    log('recv', 'room:joined_ok', payload);
+                    myRole = payload.role;
+                    el('my-role').textContent = payload.role;
+                    el('my-name').textContent = payload.displayName;
+                    el('my-score').textContent = payload.score;
+                    el('host-controls').style.display = payload.role === 'host' ? 'block' : 'none';
+                    el('btn-join').disabled = true;
+                    el('btn-leave').disabled = false;
+                    renderPlayers(payload.players);
+                    applySync(payload.sync);
+                });
+
+                socket.on('room:player_joined', (payload) => {
+                    log('recv', 'room:player_joined', payload);
+                    renderPlayers(payload.players);
+                });
+
+                socket.on('room:player_disconnected', (payload) => {
+                    log('recv', 'room:player_disconnected', payload);
+                    renderPlayers(payload.players);
+                });
+
+                socket.on('room:player_left', (payload) => {
+                    log('recv', 'room:player_left', payload);
+                    renderPlayers(payload.players);
+                });
+
+                // ----- Eventos de juego -----
+
+                socket.on('game:loading', (payload) => {
+                    log('recv', 'game:loading', payload);
+                    setRoomState('loading');
+                });
+
+                socket.on('game:ready', (payload) => {
+                    log('recv', 'game:ready', payload);
+                });
+
+                socket.on('game:question', (payload) => {
+                    log('recv', 'game:question', payload);
+                    setRoomState('question');
+                    currentQuestion = payload;
+                    alreadyAnsweredThisQuestion = false;
+                    renderQuestion(payload, null);
+                });
+
+                socket.on('game:timer_tick', (payload) => {
+                    log('recv', 'game:timer_tick', payload);
+                    const timerEl = el('question-timer');
+                    if (timerEl) timerEl.textContent = payload.secondsLeft + 's';
+                });
+
+                socket.on('game:answer_received', (payload) => {
+                    log('recv', 'game:answer_received', payload);
+                });
+
+                socket.on('game:answer_count', (payload) => {
+                    log('recv', 'game:answer_count', payload);
+                });
+
+                socket.on('game:answer_revealed', (payload) => {
+                    log('recv', 'game:answer_revealed', payload);
+                    setRoomState('reveal');
+                    renderQuestion(currentQuestion, payload);
+                });
+
+                socket.on('game:leaderboard', (payload) => {
+                    log('recv', 'game:leaderboard', payload);
+                    setRoomState('leaderboard');
+                    renderPlayers(payload.leaderboard);
+                    renderLeaderboardBox(payload);
+                });
+
+                socket.on('game:over', (payload) => {
+                    log('recv', 'game:over', payload);
+                    setRoomState('finished');
+                    renderPlayers(payload.leaderboard);
+                    el('question-box').innerHTML =
+                        '<div><b>🏆 Partida terminada.</b> Ganador: ' +
+                        payload.winner.displayName +
+                        ' (' +
+                        payload.winner.score +
+                        ' pts)</div>';
+                });
+
+                socket.on('game:play_again_ok', (payload) => {
+                    log('recv', 'game:play_again_ok', payload);
+                    setRoomState('lobby');
+                    currentQuestion = null;
+                    alreadyAnsweredThisQuestion = false;
+                    renderPlayers(payload.players);
+                    el('question-box').innerHTML =
+                        '<div class="muted">De vuelta en el lobby. Elige/genera un quiz nuevo y dale "Iniciar partida".</div>';
+                    if (myRole === 'host') {
+                        el('new-match-info').innerHTML =
+                            'Nuevo matchId para asignar quiz: <code>' +
+                            payload.matchId +
+                            '</code>' +
+                            '<br>Usa PATCH /matches/' +
+                            payload.matchId +
+                            '/quiz o POST /matches/' +
+                            payload.matchId +
+                            '/generate-quiz antes de iniciar.';
+                    }
+                });
+
+                socket.on('error', (payload) => {
+                    log('recv', 'error', payload);
+                    alert('[' + payload.code + '] ' + payload.message);
+                });
+            });
+
+            el('btn-disconnect').addEventListener('click', () => {
+                if (socket) socket.disconnect();
+            });
+
+            function resetUiOnDisconnect() {
+                el('status-dot').classList.remove('on');
+                el('status-text').textContent = 'Desconectado';
+                el('btn-connect').disabled = false;
+                el('btn-disconnect').disabled = true;
+                el('btn-join').disabled = true;
+                el('btn-leave').disabled = true;
+                el('host-controls').style.display = 'none';
+            }
+
+            // ---------- Sala: unirse / salir ----------
+
+            el('btn-join').addEventListener('click', () => {
+                const roomCode = el('room-code').value.trim().toUpperCase();
+                const guestName = el('guest-name').value.trim();
+                const payload = { roomCode, guestName: guestName || undefined };
+                log('sent', 'room:join', payload);
+                socket.emit('room:join', payload);
+            });
+
+            el('btn-leave').addEventListener('click', () => {
+                log('sent', 'room:leave', undefined);
+                socket.emit('room:leave');
+                el('btn-join').disabled = false;
+                el('btn-leave').disabled = true;
+                el('host-controls').style.display = 'none';
+                setRoomState('—');
+            });
+
+            // ---------- Controles de host ----------
+
+            el('btn-start').addEventListener('click', () => {
+                log('sent', 'game:start', undefined);
+                socket.emit('game:start');
+            });
+
+            el('btn-next').addEventListener('click', () => {
+                log('sent', 'game:next_question', undefined);
+                socket.emit('game:next_question');
+            });
+
+            el('btn-reveal').addEventListener('click', () => {
+                log('sent', 'game:reveal_answer', undefined);
+                socket.emit('game:reveal_answer');
+            });
+
+            el('btn-play-again').addEventListener('click', () => {
+                log('sent', 'game:play_again', undefined);
+                el('new-match-info').textContent = '';
+                socket.emit('game:play_again');
+            });
+
+            // ---------- Render ----------
+
+            function setRoomState(state) {
+                const badge = el('room-state');
+                badge.textContent = state;
+                badge.className = 'badge state-' + state;
+                el('play-again-row').style.display = state === 'finished' && myRole === 'host' ? 'block' : 'none';
+            }
+
+            function renderPlayers(players) {
+                const tbody = el('players-table');
+                if (!players || players.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="3" class="muted">— nadie todavía —</td></tr>';
+                    return;
+                }
+                tbody.innerHTML = players
+                    .map(
+                        (p) =>
+                            '<tr><td>' +
+                            p.displayName +
+                            (p.rank ? ' (#' + p.rank + ')' : '') +
+                            '</td>' +
+                            '<td>' +
+                            p.score +
+                            '</td>' +
+                            '<td>' +
+                            (p.isConnected ? '🟢' : '🔴') +
+                            '</td></tr>',
+                    )
+                    .join('');
+                const myEntry = players.find((p) => p.socketId === (socket && socket.id));
+                if (myEntry) el('my-score').textContent = myEntry.score;
+            }
+
+            function renderQuestion(payload, revealed) {
+                if (!payload) return;
+                const box = el('question-box');
+                const isHost = myRole === 'host';
+                const optionsHtml = payload.options
+                    .map((opt, idx) => {
+                        let cls = 'option-btn';
+                        if (revealed && idx === revealed.correctIndex) cls += ' correct';
+                        const disabled = isHost || alreadyAnsweredThisQuestion || !!revealed;
+                        return (
+                            '<button class="' +
+                            cls +
+                            '" ' +
+                            (disabled ? 'disabled' : '') +
+                            ' onclick="submitAnswer(' +
+                            idx +
+                            ')">' +
+                            opt +
+                            '</button>'
+                        );
+                    })
+                    .join('');
+
+                box.innerHTML =
+                    '<div><b>Pregunta ' +
+                    (payload.questionIndex + 1) +
+                    ' / ' +
+                    payload.totalQuestions +
+                    '</b>' +
+                    (isHost && payload.correctIndex !== undefined
+                        ? ' <span class="muted">(correcta: opción ' + (payload.correctIndex + 1) + ')</span>'
+                        : '') +
+                    ' — <span id="question-timer">' +
+                    payload.timeLimitSeconds +
+                    's</span></div>' +
+                    '<div style="margin:8px 0"><b>' +
+                    payload.question +
+                    '</b></div>' +
+                    optionsHtml;
+            }
+
+            function renderLeaderboardBox(payload) {
+                const box = el('question-box');
+                const rows = payload.leaderboard
+                    .map(
+                        (e) =>
+                            '<div>#' +
+                            e.rank +
+                            ' — ' +
+                            e.displayName +
+                            ': ' +
+                            e.score +
+                            ' pts' +
+                            (e.lastAnswerCorrect ? ' ✅ +' + e.lastPoints : ' ❌') +
+                            '</div>',
+                    )
+                    .join('');
+                box.innerHTML =
+                    '<div><b>📊 Leaderboard' + (payload.isFinalRound ? ' (última ronda)' : '') + '</b></div>' + rows;
+            }
+
+            function applySync(sync) {
+                if (!sync) return;
+                setRoomState(sync.state);
+                if (sync.state === 'question') {
+                    currentQuestion = sync.question;
+                    alreadyAnsweredThisQuestion = sync.alreadyAnswered;
+                    renderQuestion(sync.question, null);
+                } else if (sync.state === 'reveal') {
+                    renderQuestion(currentQuestion, sync.revealed);
+                } else if (sync.state === 'leaderboard') {
+                    renderLeaderboardBox(sync);
+                } else if (sync.state === 'finished') {
+                    el('question-box').innerHTML =
+                        '<div><b>🏆 Partida ya había terminado.</b> Ganador: ' +
+                        sync.result.winner.displayName +
+                        '</div>';
+                }
+            }
+
+            // Expuesto global para el onclick inline de los botones de opción
+            window.submitAnswer = function (answerIndex) {
+                if (!currentQuestion) return;
+                alreadyAnsweredThisQuestion = true;
+                const payload = { questionIndex: currentQuestion.questionIndex, answerIndex };
+                log('sent', 'game:submit_answer', payload);
+                socket.emit('game:submit_answer', payload);
+                renderQuestion(currentQuestion, null);
+            };
+        </script>
+    </body>
+</html>
