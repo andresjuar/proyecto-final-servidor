@@ -44,3 +44,41 @@ puntajes, reconexión).
   y las rutas `/auth/google` / `/auth/google/callback` existen como dummy.
   La implementación real (verificación de ID token con
   `google-auth-library`) queda fuera del alcance de esta entrega.
+
+## Activación de cuenta por correo
+ 
+Para la entrega de creación de funcionalidades se creó lo siguiente:
+ 
+- **`User.isActive`** (default `false`). `POST /auth/register` crea la cuenta
+  ya con `isActive:false` y manda un correo con un link de activación —
+  **a propósito no regresa un token de sesión en esa respuesta**: si lo
+  regresara, cualquiera podría saltarse la verificación con solo registrarse
+  y usar ese token directo, sin necesidad de abrir el correo.
+- **`POST /auth/login` rechaza con 403** (no 401 — las credenciales sí son
+  correctas, lo que falta es el estado de la cuenta) si `isActive` es
+  `false`, con un mensaje que invita a revisar el correo.
+- **El link de activación (`GET /auth/activate/:token`) usa un JWT, pero
+  firmado con un secreto DISTINTO** al de las sesiones
+  (`ACTIVATION_TOKEN_SECRET`, derivado de `JWT_SECRET` si no se define uno
+  aparte) y con un campo `purpose` que se valida explícitamente
+  (`src/utils/activationToken.ts`). Esto evita que un link de activación
+  pueda reutilizarse como si fuera un `Bearer token` válido para la API, algo
+  que sí pasaría si se usara `generarTokenJWT`/`verificarTokenJWT` tal cual
+  (mismo secreto, mismo formato de payload). Queda probado explícitamente en
+  `src/utils/__tests__/activationToken.spec.ts`.
+- **Envío de correo vía SMTP con `nodemailer`** (`src/services/Mail.service.ts`),
+  configurable por variables de entorno (`SMTP_HOST/PORT/USER/PASS`,
+  `MAIL_FROM`). Puede reusarse la misma cuenta de Gmail + App Password que ya
+  se configuró para las notificaciones de GitHub Actions (Práctica 2,
+  `dawidd6/action-send-mail`) — es la misma idea, solo que aquí la usa
+  directamente el backend en vez de un workflow de CI.
+- **Si el envío del correo falla** (SMTP caído, credenciales mal puestas,
+  etc.), el registro **no se cancela**: la cuenta queda creada pero inactiva,
+  y el error solo se loguea en el servidor. Botar todo el registro por un
+  problema de correo sería peor experiencia que dejar la cuenta pendiente de
+  activar.
+- **`POST /auth/resend-activation`** reenvía el correo si no llegó o expiró.
+  Responde **siempre el mismo mensaje genérico**, sin importar si el correo
+  existe, ya está activo, o se reenvió de verdad — mismo criterio que
+  "recuperar contraseña" en cualquier sistema serio, para que este endpoint
+  no se pueda usar para averiguar qué correos están registrados.
