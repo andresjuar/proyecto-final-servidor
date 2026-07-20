@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import SMTPTransport from 'nodemailer/lib/smtp-transport';
 import { env } from '../config/env.config';
 
 /**
@@ -10,16 +11,18 @@ import { env } from '../config/env.config';
  * mismo SMTP_USER/SMTP_PASS, solo que aquí los lee la app en vez de un workflow.
  */
 
-let transporter: ReturnType<typeof nodemailer.createTransport> | null = null;
+let transporter: nodemailer.Transporter<SMTPTransport.SentMessageInfo> | null = null;
 
 function getTransporter() {
     if (!transporter) {
         transporter = nodemailer.createTransport({
-            host: env.smtpHost,
-            port: env.smtpPort,
-            secure: env.smtpPort === 465, // 465 = SSL directo; 587 = STARTTLS
-            auth: env.smtpUser ? { user: env.smtpUser, pass: env.smtpPass } : undefined,
-        });
+            service: 'gmail',
+            auth: {
+                user: env.smtpUser,
+                pass: env.smtpPass,
+            },
+            family: 4,
+        } as SMTPTransport.Options);
     }
     return transporter;
 }
