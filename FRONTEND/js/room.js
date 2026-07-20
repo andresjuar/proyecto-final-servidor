@@ -578,6 +578,8 @@ function onPlayAgainOk(payload) {
         showScreen('screen-lobby-host');
         selectedQuizId = null;
         setLobbyQuizStatus('Aún no has asignado un quiz. Elige uno o genera uno con IA.', false);
+        exploreTabLoaded = false; 
+        void loadMyQuizzesTab(); 
     } else {
         showScreen('screen-lobby-player');
     }

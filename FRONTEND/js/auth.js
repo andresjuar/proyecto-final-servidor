@@ -1,20 +1,7 @@
 // auth.js
 // Manejo de sesión compartido entre todas las páginas:
-//   - Persiste el JWT en localStorage.
-//   - Al cargar, valida el token contra /auth/me + /users/:id (para tener displayName).
-//   - Controla el modal de login/registro (login <-> registro <-> "revisa tu correo").
-//   - Soporta "acción pendiente": si el modal se abrió por un botón que necesitaba
-//     sesión (ej. "Iniciar partida"), esa acción se ejecuta automáticamente al
-//     loguearse. Si se abrió desde el botón genérico de la navbar, solo se cierra.
-//
-// Requiere que la página tenga en su HTML:
-//   - Navbar con #nav-login-btn, #nav-user-box, #nav-user-name, #nav-logout-btn
-//   - Modal con #auth-modal, #auth-modal-close, #auth-login-view, #auth-register-view,
-//     #auth-register-success, #login-form, #register-form, #to-register, #to-login,
-//     #auth-success-close, #login-error, #register-error
-//
-// currentUser queda disponible como variable global (objeto o null) para que
-// cada página (home.js, room.js, etc.) lo consulte.
+
+
 
 let currentUser = null;
 let pendingAuthAction = null;
@@ -153,6 +140,11 @@ async function handleLoginSubmit() {
     const email = document.getElementById('login-email').value.trim();
     const password = document.getElementById('login-password').value;
     const errorBox = document.getElementById('login-error');
+    const submitBtn = document.querySelector('#login-form button[type="submit"]');
+
+    submitBtn.disabled = true;
+    const originalText = submitBtn.textContent;
+    submitBtn.textContent = 'Entrando...';
 
     try {
         const data = await api.post('/auth/login', { email, password });
@@ -184,6 +176,9 @@ async function handleLoginSubmit() {
         } else {
             showErrorToast(err);
         }
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
     }
 }
 
@@ -192,6 +187,11 @@ async function handleRegisterSubmit() {
     const displayName = document.getElementById('register-displayName').value.trim();
     const password = document.getElementById('register-password').value;
     const errorBox = document.getElementById('register-error');
+    const submitBtn = document.querySelector('#register-form button[type="submit"]');
+
+    submitBtn.disabled = true;
+    const originalText = submitBtn.textContent;
+    submitBtn.textContent = 'Creando cuenta...';
 
     try {
         await api.post('/auth/register', { email, displayName, password });
@@ -207,6 +207,9 @@ async function handleRegisterSubmit() {
         } else {
             showErrorToast(err);
         }
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
     }
 }
 
