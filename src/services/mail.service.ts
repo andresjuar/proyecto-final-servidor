@@ -16,12 +16,16 @@ let transporter: nodemailer.Transporter<SMTPTransport.SentMessageInfo> | null = 
 function getTransporter() {
     if (!transporter) {
         transporter = nodemailer.createTransport({
-            service: 'gmail',
+            host: 'smtp.gmail.com',
+            port: 465,
+            secure: true,
             auth: {
                 user: env.smtpUser,
                 pass: env.smtpPass,
             },
-            family: 4,
+            tls: {
+                family: 4,
+            },
         } as SMTPTransport.Options);
     }
     return transporter;
@@ -35,7 +39,12 @@ function getTransporter() {
  */
 export async function sendActivationEmail(to: string, displayName: string, activationToken: string): Promise<void> {
     const activationLink = `${env.appBaseUrl}/auth/activate/${activationToken}`;
-
+    try {
+        await getTransporter().verify();
+        console.log('✅ SMTP listo');
+    } catch (error) {
+        console.error('❌ Error en SMTP:', error);
+    }
     await getTransporter().sendMail({
         from: env.mailFrom,
         to,
