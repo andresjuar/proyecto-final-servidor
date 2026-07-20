@@ -1,8 +1,5 @@
 // auth.js
-// Manejo de sesión compartido entre todas las páginas:
-
-
-
+// Manejo de sesión compartido entre todas las páginas
 let currentUser = null;
 let pendingAuthAction = null;
 
@@ -38,6 +35,11 @@ function renderNav() {
     const loginBtn = document.getElementById('nav-login-btn');
     const userBox = document.getElementById('nav-user-box');
     const userName = document.getElementById('nav-user-name');
+    const myQuizzesLink = document.getElementById('nav-my-quizzes-link');
+
+    if (myQuizzesLink) {
+        myQuizzesLink.classList.toggle('hidden', !currentUser);
+    }
 
     if (!loginBtn || !userBox || !userName) return;
 
@@ -94,13 +96,7 @@ function wireAuthModal() {
     });
 }
 
-/**
- * Abre el modal de sesión.
- * @param {'login'|'register'} mode
- * @param {(() => void)|null} onSuccess - acción pendiente a ejecutar tras loguearse
- *   exitosamente. Si es null, el modal solo se cierra al loguearse (comportamiento
- *   del botón genérico "Iniciar sesión" de la navbar).
- */
+
 function openAuthModal(mode, onSuccess) {
     pendingAuthAction = onSuccess || null;
     const modal = document.getElementById('auth-modal');

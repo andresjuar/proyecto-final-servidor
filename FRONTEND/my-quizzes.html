@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Explorar quizzes — RicoQuiz+</title>
+        <title>Mis quizzes — RicoQuiz+</title>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
             href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@700;800;900&display=swap"
@@ -32,48 +32,24 @@
         <main class="page">
             <div class="container container-wide">
                 <div class="row-between">
-                    <h1 style="color: var(--white)">Explorar quizzes</h1>
+                    <h1 style="color: var(--white)">Mis quizzes</h1>
                     <a href="create-quiz.html" class="btn btn-primary">+ Crear quiz</a>
                 </div>
 
-                <div class="panel">
-                    <form id="search-form" class="search-bar">
-                        <div class="field">
-                            <label for="search-q">Buscar por título</label>
-                            <input type="text" id="search-q" placeholder="ej. superhéroes" />
-                        </div>
-                        <div class="field">
-                            <label for="search-tags">Tags (separados por coma)</label>
-                            <input type="text" id="search-tags" placeholder="ej. ciencia,historia" />
-                        </div>
-                        <button type="submit" class="btn btn-primary">Buscar</button>
-                    </form>
+                <!-- Se muestra si no hay sesión iniciada -->
+                <div id="login-gate" class="panel hidden">
+                    <p style="margin-bottom: 1rem">Necesitas iniciar sesión para ver tus quizzes.</p>
+                    <button id="login-gate-btn" class="btn btn-primary">Iniciar sesión</button>
                 </div>
 
-                <div id="quiz-grid" class="quiz-grid"></div>
-                <div id="empty-results" class="empty-state hidden">No se encontraron quizzes.</div>
-
-                <div class="row-between" id="pagination-controls">
-                    <button id="prev-page" class="btn btn-small" type="button">← Anterior</button>
-                    <span id="page-info" class="muted" style="color: var(--white)"></span>
-                    <button id="next-page" class="btn btn-small" type="button">Siguiente →</button>
+                <div id="my-quizzes-content" class="hidden">
+                    <div id="my-quizzes-grid" class="quiz-grid"></div>
+                    <p id="my-quizzes-empty" class="empty-state hidden">
+                        Todavía no has creado ningún quiz. <a href="create-quiz.html" style="color: var(--yellow)">Crea el primero</a>.
+                    </p>
                 </div>
             </div>
         </main>
-
-        <!-- ===== Modal: detalle de quiz (preguntas, sin marcar la correcta) ===== -->
-        <div id="quiz-detail-modal" class="modal-overlay hidden">
-            <div class="modal-card modal-wide">
-                <button class="modal-close" id="quiz-detail-close" type="button">&times;</button>
-                <h2 id="quiz-detail-title"></h2>
-                <p id="quiz-detail-meta" class="muted"></p>
-                <hr class="divider" />
-                <div id="quiz-detail-questions" class="stack"></div>
-                <button type="button" class="btn btn-green btn-block" id="quiz-detail-play-btn" style="margin-top: 1rem">
-                    Crear partida con este quiz
-                </button>
-            </div>
-        </div>
 
         <!-- ===== Modal: Login / Registro (compartido) ===== -->
         <div id="auth-modal" class="modal-overlay hidden">
@@ -134,6 +110,6 @@
         <script src="js/toast.js"></script>
         <script src="js/auth.js"></script>
         <script src="js/quiz-explorer.js"></script>
-        <script src="js/explore.js"></script>
+        <script src="js/my-quizzes.js"></script>
     </body>
 </html>

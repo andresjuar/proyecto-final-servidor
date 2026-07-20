@@ -1,4 +1,4 @@
-// room.js — controlador de la pantalla de sala/partida.
+// room.js - controlador de la pantalla de sala/partida.
 // Maneja la máquina de estados completa reflejando game.engine.ts del backend:
 // lobby -> loading -> question -> reveal -> leaderboard -> (question... | finished)
 
@@ -202,7 +202,7 @@ function renderPlayerChips(players) {
     const html = players
         .map(
             (p) =>
-                `<span class="player-chip${p.isConnected ? '' : ' disconnected'}">${escapeHtml(p.displayName)}</span>`,
+                `<span class="player-chip${p.isConnected ? '' : ' disconnected'}">${escapeHtml(p.displayName)} (${p.score})</span>`,
         )
         .join('');
     const list = document.getElementById('player-chip-list');
@@ -439,7 +439,7 @@ function renderQuestion(question, secondsLeft, alreadyAnswered) {
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'option-btn';
-        btn.textContent = isHostView && i === question.correctIndex ? `${opt}` : opt;
+        btn.textContent = isHostView && i === question.correctIndex ? `⭐ ${opt}` : opt;
 
         if (myRole === 'player') {
             btn.disabled = alreadyAnswered;
@@ -578,8 +578,8 @@ function onPlayAgainOk(payload) {
         showScreen('screen-lobby-host');
         selectedQuizId = null;
         setLobbyQuizStatus('Aún no has asignado un quiz. Elige uno o genera uno con IA.', false);
-        exploreTabLoaded = false; 
-        void loadMyQuizzesTab(); 
+        exploreTabLoaded = false; // fuerza recargar "Explorar públicos" la próxima vez que se abra esa pestaña
+        void loadMyQuizzesTab(); // refresca conteos (ej. timesPlayed) que cambiaron en la partida anterior
     } else {
         showScreen('screen-lobby-player');
     }

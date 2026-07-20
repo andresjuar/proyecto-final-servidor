@@ -1,4 +1,4 @@
-// home.js — lógica de la pantalla de inicio
+// home.js - lógica de la pantalla de inicio
 
 document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btn-start-game').addEventListener('click', onStartGameClick);

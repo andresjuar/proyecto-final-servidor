@@ -1,4 +1,4 @@
-// explore.js — controlador de la pantalla de explorar quizzes
+// explore.js - controlador de la pantalla de explorar quizzes
 
 const EXPLORE_LIMIT = 12;
 let exploreState = { page: 1, total: 0, q: '', tags: '' };

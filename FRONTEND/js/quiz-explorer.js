@@ -15,10 +15,7 @@ const PLACEHOLDER_COVER =
             '</svg>',
     );
 
-/**
- * Busca quizzes públicos.
- * @param {{q?: string, tags?: string, owner?: string, page?: number, limit?: number}} params
- */
+
 async function fetchQuizzes(params = {}) {
     const query = new URLSearchParams();
     if (params.q) query.set('q', params.q);
@@ -30,12 +27,7 @@ async function fetchQuizzes(params = {}) {
     return api.get(`/quizzes?${query.toString()}`);
 }
 
-/**
- * Pinta una grilla de tarjetas de quiz dentro de `container`.
- * @param {HTMLElement} container
- * @param {Array} quizzes
- * @param {(quizId: string) => void} onCardClick
- */
+
 function renderQuizGrid(container, quizzes, onCardClick) {
     container.innerHTML = '';
     for (const quiz of quizzes) {
@@ -58,11 +50,7 @@ function renderQuizGrid(container, quizzes, onCardClick) {
     }
 }
 
-/**
- * Abre el modal de detalle (#quiz-detail-modal) con las preguntas del quiz,
- * sin indicar en ningún momento cuál es la opción correcta.
- * @param {string} quizId
- */
+
 async function openQuizDetailModal(quizId) {
     try {
         const quiz = await api.get(`/quizzes/${quizId}`);

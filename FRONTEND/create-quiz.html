@@ -14,6 +14,12 @@
     <body>
         <nav class="topbar">
             <a href="index.html" class="brand">Rico<span>Quiz+</span></a>
+            <div class="nav-links">
+                <a href="explore.html" class="btn btn-small btn-outline">Explorar</a>
+                <a href="my-quizzes.html" id="nav-my-quizzes-link" class="btn btn-small btn-outline hidden"
+                    >Mis quizzes</a
+                >
+            </div>
             <div id="nav-session">
                 <button id="nav-login-btn" class="btn btn-small btn-purple">Iniciar sesión</button>
                 <div id="nav-user-box" class="hidden">
@@ -25,7 +31,7 @@
 
         <main class="page">
             <div class="container">
-                <h1 style="color: var(--white)">Crear quiz</h1>
+                <h1 id="page-heading" style="color: var(--white)">Crear quiz</h1>
 
                 <!-- Se muestra si no hay sesión iniciada -->
                 <div id="login-gate" class="panel hidden">
@@ -64,6 +70,7 @@
 
                     <div class="field">
                         <label>Imagen de portada (opcional)</label>
+                        <img id="quiz-cover-preview" class="hidden question-image" style="max-width: 220px; margin-bottom: 0.5rem" />
                         <input type="file" id="quiz-cover-file" accept="image/*" />
                     </div>
 
@@ -76,6 +83,9 @@
                     </button>
 
                     <button type="submit" class="btn btn-primary btn-block" id="submit-quiz-btn">Crear quiz</button>
+                    <button type="button" class="btn btn-danger btn-block hidden" id="delete-quiz-btn" style="margin-top: 0.75rem">
+                        Eliminar quiz
+                    </button>
                 </form>
             </div>
         </main>
@@ -95,6 +105,7 @@
 
                 <div class="field">
                     <label>Imagen de la pregunta (opcional)</label>
+                    <img data-question-image-preview class="hidden question-image" style="max-width: 200px; margin-bottom: 0.5rem" />
                     <input type="file" data-field="imageFile" accept="image/*" />
                 </div>
 

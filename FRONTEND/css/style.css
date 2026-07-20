@@ -122,6 +122,13 @@ button {
     gap: 0.75rem;
 }
 
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+}
+
 #nav-user-box {
     display: flex;
     align-items: center;
@@ -553,6 +560,28 @@ button {
     padding: 0.15rem 0.55rem;
     border-radius: 999px;
     margin-bottom: 0.3rem;
+}
+
+.visibility-badge-public {
+    background: var(--green);
+    color: var(--black);
+    border-color: var(--green);
+}
+
+.visibility-badge-private {
+    background: var(--cream);
+}
+
+.quiz-card-actions {
+    display: flex;
+    gap: 0.4rem;
+    margin-top: 0.6rem;
+    flex-wrap: wrap;
+}
+
+.quiz-card-actions .btn {
+    flex: 1;
+    min-width: 0;
 }
 
 .quiz-card-cover {

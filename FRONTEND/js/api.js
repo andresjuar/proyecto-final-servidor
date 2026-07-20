@@ -1,6 +1,3 @@
-// api.js
-// Wrapper delgado sobre fetch para hablar con el backend REST.
-// No usa ninguna librería: solo fetch + JSON.
 
 const TOKEN_KEY = 'rq_token';
 
@@ -16,15 +13,7 @@ function clearToken() {
     localStorage.removeItem(TOKEN_KEY);
 }
 
-/**
- * Llama al backend.
- * @param {string} path - ej. '/auth/login'
- * @param {object} opts
- * @param {'GET'|'POST'|'PUT'|'PATCH'|'DELETE'} [opts.method]
- * @param {object} [opts.body] - se manda como JSON, salvo que isMultipart sea true
- * @param {boolean} [opts.auth] - si true, manda el JWT guardado (si existe)
- * @param {boolean} [opts.isMultipart] - si true, `body` debe ser un FormData
- */
+
 async function apiFetch(path, opts = {}) {
     const { method = 'GET', body, auth = false, isMultipart = false } = opts;
 
