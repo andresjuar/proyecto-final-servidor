@@ -274,7 +274,9 @@ export const updateMatch = asyncHandler(async (req, res: Response) => {
 export const deleteMatch = asyncHandler(async (req, res: Response) => {
     const { id } = req.params;
 
-    const match = await Match.findByIdAndDelete(id);
+    // primero se valida al host y SOLO entonces se borra: si se borrara antes
+    // de validar, cualquier usuario autenticado podría eliminar partidas ajenas
+    const match = await Match.findById(id);
 
     if (!match) {
         throw new AppError('Partida no encontrada', 404);
@@ -283,6 +285,8 @@ export const deleteMatch = asyncHandler(async (req, res: Response) => {
     if (match.host.toString() !== req.user!.id) {
         throw new AppError('No tienes permiso para eliminar esta partida', 403);
     }
+
+    await match.deleteOne();
 
     return res.status(200).json({ message: 'Partida eliminada' });
 });

@@ -5,6 +5,8 @@
   "main": "dist/index.js",
   "scripts": {
     "test": "jest --passWithNoTests",
+    "test:watch": "jest --watchAll",
+    "test:coverage": "jest --coverage",
     "build": "tsc && copyfiles public/**/* dist/",
     "build:clean": "rimraf dist && tsc && copyfiles public/**/* dist/",
     "start": "node .",
