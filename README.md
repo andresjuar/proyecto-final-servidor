@@ -70,7 +70,7 @@ materia Tecnologías de Desarrollo en el Servidor.
 
 ## Documentación
 
-- [Arquitectura del sistema](./docs/arquitectura.md)
-- [Diseño de la base de datos](./docs/database.md)
-- [Tablero de trabajo](./docs/tablero-trabajo.md)
-- [Funciones en Tiempo real](./docs/tiempo-real.md)
+- [Arquitectura del sistema](./BACKEND/docs/arquitectura.md)
+- [Diseño de la base de datos](./BACKEND//docs/database.md)
+- [Tablero de trabajo](./BACKEND/docs/tablero-trabajo.md)
+- [Funciones en Tiempo real](./BACKEND/docs/tiempo-real.md)
