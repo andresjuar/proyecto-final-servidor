@@ -1,62 +1,30 @@
+import nodemailer from 'nodemailer';
+import SMTPTransport from 'nodemailer/lib/smtp-transport';
 import { env } from '../config/env.config';
-import { AppError } from '../utils/AppError';
 
-/**
- * Mail.service.ts — envío de correos transaccionales vía la API HTTP de Brevo
- * (antes Sendinblue).
- *
- * Se usa la API por HTTPS a propósito, en vez de SMTP: Render (y otros hostings)
- * bloquean tráfico saliente a puertos SMTP (25/465/587) en su plan gratuito,
- * pero sí permiten HTTPS normal, que es todo lo que necesita este servicio.
- *
- * BREVO_SENDER_EMAIL debe ser un correo verificado individualmente en el
- * dashboard de Brevo (Settings → Senders), NO requiere tener un dominio propio:
- * Brevo manda un correo de confirmación una sola vez a esa dirección y ya queda
- * habilitada como remitente.
- */
 
-const BREVO_API_URL = 'https://api.brevo.com/v3/smtp/email';
 
-interface SendEmailParams {
-    to: string;
-    subject: string;
-    html: string;
-}
+let transporter: nodemailer.Transporter<SMTPTransport.SentMessageInfo> | null = null;
 
-async function sendEmail({ to, subject, html }: SendEmailParams): Promise<void> {
-    console.log("Enviando correo")
-    const response = await fetch(BREVO_API_URL, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            Accept: 'application/json',
-            'api-key': env.brevoApiKey,
-        },
-        body: JSON.stringify({
-            sender: { email: env.brevoSenderEmail, name: env.brevoSenderName },
-            to: [{ email: to }],
-            subject,
-            htmlContent: html,
-        }),
-    });
-
-    if (!response.ok) {
-        const body = await response.text().catch(() => '');
-        console.error('Error enviando correo con Brevo:', response.status, body);
-        throw new AppError('No se pudo enviar el correo, intenta de nuevo', 502);
+function getTransporter() {
+    if (!transporter) {
+        transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: env.smtpUser,
+                pass: env.smtpPass,
+            },
+            family: 4,
+        } as SMTPTransport.Options);
     }
+    return transporter;
 }
 
-/**
- * Envía el correo de activación de cuenta con el link que activa isActive=true.
- * Si el envío falla (API key mal puesta, remitente sin verificar, etc.), lanza el
- * error tal cual para que quien la llame decida cómo manejarlo — normalmente NO se
- * quiere tumbar el registro completo solo porque el correo no salió.
- */
 export async function sendActivationEmail(to: string, displayName: string, activationToken: string): Promise<void> {
     const activationLink = `${env.appBaseUrl}/auth/activate/${activationToken}`;
 
-    await sendEmail({
+    await getTransporter().sendMail({
+        from: env.smtpUser,
         to,
         subject: 'Activa tu cuenta de RicoQuiz+',
         html: `

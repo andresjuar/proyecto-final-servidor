@@ -19,8 +19,8 @@ materia Tecnologías de Desarrollo en el Servidor.
 | Documentación de API         | Swagger (OpenAPI 3.0)                  |
 | Pruebas                      | Jest                                   |
 | Calidad de código            | ESLint + Prettier                      |
-| CI/CD                        | GitHub Actions (por configurar)        |
-| Despliegue                   | Aun no definido                        |
+| CI/CD                        | Hook de render para hacer deploy del commit más reciente        |
+| Despliegue                   | Render                 |
 
 ## Configuración local
 

@@ -20,6 +20,7 @@ let roomCode = null;
 let urlRole = null; // rol "de intención" leído de la URL, antes de conectar
 let myRole = null; // rol AUTORITATIVO, confirmado por el servidor en room:joined_ok
 let currentMatchId = null; // solo relevante para el host (llamadas REST de /matches)
+let selectedQuizId = null; // id del quiz actualmente asignado a la partida (para resaltar la tarjeta)
 let currentQuestion = null;
 let ownAnswerIndex = null;
 let lobbyTabsWired = false;
@@ -201,7 +202,7 @@ function renderPlayerChips(players) {
     const html = players
         .map(
             (p) =>
-                `<span class="player-chip${p.isConnected ? '' : ' disconnected'}">${escapeHtml(p.displayName)} (${p.score})</span>`,
+                `<span class="player-chip${p.isConnected ? '' : ' disconnected'}">${escapeHtml(p.displayName)}</span>`,
         )
         .join('');
     const list = document.getElementById('player-chip-list');
@@ -214,8 +215,8 @@ function renderPlayerChips(players) {
 
 async function initLobbyHostView() {
     wireLobbyTabsOnce();
-    await loadMyQuizzesTab();
     await refreshMatchQuizStatus();
+    await loadMyQuizzesTab();
 }
 
 function wireLobbyTabsOnce() {
@@ -234,9 +235,10 @@ function wireLobbyTabsOnce() {
             if (tab === 'explore' && !exploreTabLoaded) {
                 exploreTabLoaded = true;
                 fetchQuizzes({ limit: 9 })
-                    .then((result) =>
-                        renderQuizGrid(document.getElementById('lobby-explore-list'), result.data, openQuizPickerModal),
-                    )
+                    .then((result) => {
+                        renderQuizGrid(document.getElementById('lobby-explore-list'), result.data, openQuizPickerModal);
+                        highlightSelectedQuiz();
+                    })
                     .catch(showErrorToast);
             }
         });
@@ -248,6 +250,7 @@ function wireLobbyTabsOnce() {
         try {
             const result = await fetchQuizzes({ q, limit: 9 });
             renderQuizGrid(document.getElementById('lobby-explore-list'), result.data, openQuizPickerModal);
+            highlightSelectedQuiz();
         } catch (err) {
             showErrorToast(err);
         }
@@ -261,8 +264,9 @@ function wireLobbyTabsOnce() {
         btn.disabled = true;
         btn.textContent = 'Generando...';
         try {
-            await api.post(`/matches/${currentMatchId}/generate-quiz`, { topic, numQuestions }, { auth: true });
+            const match = await api.post(`/matches/${currentMatchId}/generate-quiz`, { topic, numQuestions }, { auth: true });
             setLobbyQuizStatus(`Quiz asignado: Quiz de ${topic}`, true);
+            selectedQuizId = typeof match.quiz === 'object' ? match.quiz._id : match.quiz;
             showSuccessToast('Quiz generado con IA.');
             await loadMyQuizzesTab();
         } catch (err) {
@@ -315,6 +319,7 @@ async function loadMyQuizzesTab() {
         emptyMsg.classList.add('hidden');
         const quizzes = await Promise.all(ids.map((id) => api.get(`/quizzes/${id}`).catch(() => null)));
         renderQuizGrid(container, quizzes.filter(Boolean), openQuizPickerModal);
+        highlightSelectedQuiz();
     } catch (err) {
         showErrorToast(err);
     }
@@ -329,10 +334,13 @@ async function refreshMatchQuizStatus() {
         const match = await api.get(`/matches/${currentMatchId}`);
         if (match.quiz) {
             const title = typeof match.quiz === 'object' ? match.quiz.title : 'Quiz asignado';
+            selectedQuizId = typeof match.quiz === 'object' ? match.quiz._id : match.quiz;
             setLobbyQuizStatus(`Quiz asignado: ${title}`, true);
         } else {
+            selectedQuizId = null;
             setLobbyQuizStatus('Aún no has asignado un quiz. Elige uno o genera uno con IA.', false);
         }
+        highlightSelectedQuiz();
     } catch (err) {
         showErrorToast(err);
     }
@@ -341,6 +349,23 @@ async function refreshMatchQuizStatus() {
 function setLobbyQuizStatus(text, hasQuiz) {
     document.getElementById('lobby-quiz-status').textContent = text;
     document.getElementById('start-game-btn').disabled = !hasQuiz;
+}
+
+function highlightSelectedQuiz() {
+    document.querySelectorAll('.quiz-card').forEach((card) => {
+        const isSelected = Boolean(selectedQuizId) && card.dataset.quizId === selectedQuizId;
+        card.classList.toggle('selected', isSelected);
+
+        let badge = card.querySelector('.quiz-card-selected-badge');
+        if (isSelected && !badge) {
+            badge = document.createElement('div');
+            badge.className = 'quiz-card-selected-badge';
+            badge.textContent = '✓ Usado en esta partida';
+            card.querySelector('.quiz-card-body').prepend(badge);
+        } else if (!isSelected && badge) {
+            badge.remove();
+        }
+    });
 }
 
 async function openQuizPickerModal(quizId) {
@@ -361,6 +386,8 @@ async function selectQuizForMatch(quizId, title) {
         await api.patch(`/matches/${currentMatchId}/quiz`, { quizId }, { auth: true });
         document.getElementById('quiz-detail-modal').classList.add('hidden');
         setLobbyQuizStatus(`Quiz asignado: ${title}`, true);
+        selectedQuizId = quizId;
+        highlightSelectedQuiz();
         showSuccessToast('Quiz asignado a la partida.');
     } catch (err) {
         showErrorToast(err);
@@ -412,7 +439,7 @@ function renderQuestion(question, secondsLeft, alreadyAnswered) {
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'option-btn';
-        btn.textContent = isHostView && i === question.correctIndex ? `⭐ ${opt}` : opt;
+        btn.textContent = isHostView && i === question.correctIndex ? `${opt}` : opt;
 
         if (myRole === 'player') {
             btn.disabled = alreadyAnswered;
@@ -549,6 +576,7 @@ function onPlayAgainOk(payload) {
 
     if (myRole === 'host') {
         showScreen('screen-lobby-host');
+        selectedQuizId = null;
         setLobbyQuizStatus('Aún no has asignado un quiz. Elige uno o genera uno con IA.', false);
     } else {
         showScreen('screen-lobby-player');

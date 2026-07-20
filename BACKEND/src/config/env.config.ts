@@ -18,8 +18,8 @@ export const env = {
     activationTokenSecret: required('ACTIVATION_TOKEN_SECRET'),
     activationTokenExpiresIn: process.env.ACTIVATION_TOKEN_EXPIRES_IN || '1d',
     brevoApiKey: process.env.BREVO_API_KEY || '',
-    brevoSenderEmail: process.env.BREVO_SENDER_EMAIL || '',
-    brevoSenderName: process.env.BREVO_SENDER_NAME || 'RicoQuiz+',
+    smtpUser: process.env.SMTP_USER || '',
+    smtpPass: process.env.SMTP_PASS || '',
     
     appBaseUrl: process.env.APP_BASE_URL || `http://localhost:${Number(process.env.PORT) || 3000}`,
   

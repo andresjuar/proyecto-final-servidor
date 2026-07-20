@@ -41,6 +41,7 @@ function renderQuizGrid(container, quizzes, onCardClick) {
     for (const quiz of quizzes) {
         const card = document.createElement('div');
         card.className = 'quiz-card';
+        card.dataset.quizId = quiz._id;
 
         const ownerName = quiz.owner && typeof quiz.owner === 'object' ? quiz.owner.displayName : '';
 

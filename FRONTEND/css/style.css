@@ -539,6 +539,22 @@ button {
     box-shadow: var(--shadow);
 }
 
+.quiz-card.selected {
+    border-color: var(--green);
+    background: #eafaf0;
+}
+
+.quiz-card-selected-badge {
+    display: inline-block;
+    background: var(--green-light);
+    color: var(--white);
+    font-size: 0.7rem;
+    font-weight: 900;
+    padding: 0.15rem 0.55rem;
+    border-radius: 999px;
+    margin-bottom: 0.3rem;
+}
+
 .quiz-card-cover {
     width: 100%;
     height: 130px;
@@ -582,7 +598,13 @@ button {
     margin-bottom: 0.8rem;
 }
 
+.question-list-item strong {
+    display: block;
+    margin-bottom: 0.3rem;
+}
+
 .question-list-item img {
+    display: block;
     max-width: 100%;
     border-radius: var(--radius-sm);
     border: var(--border-thin);

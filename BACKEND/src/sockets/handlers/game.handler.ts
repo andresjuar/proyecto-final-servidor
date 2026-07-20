@@ -244,6 +244,7 @@ async function finishMatchInDb(room: LiveRoom, leaderboard: LeaderboardEntry[]):
                 },
             },
         );
+        await Quiz.findByIdAndUpdate(room.quizId, { $inc: { timesPlayed: 1 } });
     } catch (err) {
         console.error('No se pudo marcar la partida como terminada:', err);
     }

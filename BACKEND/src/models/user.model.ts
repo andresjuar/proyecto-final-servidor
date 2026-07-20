@@ -1,7 +1,6 @@
 import { Schema, model, Document, Types } from 'mongoose';
 
 export interface IUser extends Document {
-    googleId?: string;
     email: string;
     displayName: string;
     avatarUrl?: string;
@@ -16,12 +15,6 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const userSchema = new Schema<IUser>(
     {
-        googleId: {
-            type: String,
-            unique: true,
-            sparse: true,
-            trim: true,
-        },
         email: {
             type: String,
             required: [true, 'El email es requerido'],

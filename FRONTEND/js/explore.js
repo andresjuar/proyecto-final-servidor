@@ -58,13 +58,40 @@ async function loadQuizzes() {
             emptyState.classList.remove('hidden');
         } else {
             emptyState.classList.add('hidden');
-            renderQuizGrid(grid, result.data, openQuizDetailModal);
+            renderQuizGrid(grid, result.data, openQuizDetailAndOfferPlay);
         }
 
         const maxPage = Math.max(1, Math.ceil(exploreState.total / EXPLORE_LIMIT));
         document.getElementById('page-info').textContent = `Página ${exploreState.page} de ${maxPage}`;
         document.getElementById('prev-page').disabled = exploreState.page <= 1;
         document.getElementById('next-page').disabled = exploreState.page >= maxPage;
+    } catch (err) {
+        showErrorToast(err);
+    }
+}
+
+async function openQuizDetailAndOfferPlay(quizId) {
+    try {
+        const quiz = await api.get(`/quizzes/${quizId}`);
+        renderQuizDetail(quiz);
+        document.getElementById('quiz-detail-play-btn').onclick = () => {
+            if (currentUser) {
+                void startMatchWithQuiz(quiz._id);
+            } else {
+                openAuthModal('login', () => startMatchWithQuiz(quiz._id));
+            }
+        };
+        document.getElementById('quiz-detail-modal').classList.remove('hidden');
+    } catch (err) {
+        showErrorToast(err);
+    }
+}
+
+async function startMatchWithQuiz(quizId) {
+    try {
+        const match = await api.post('/matches', { quiz: quizId }, { auth: true });
+        localStorage.setItem(`rq_matchid_${match.roomCode}`, match._id);
+        window.location.href = `room.html?code=${match.roomCode}&role=host`;
     } catch (err) {
         showErrorToast(err);
     }
