@@ -5,6 +5,15 @@ materia Tecnologías de Desarrollo en el Servidor.
 
 **Autores:** Andrés Juárez, Adán Juárez Jr
 
+El proyecto lanzado se encuentra en el siguiente enlace:
+https://proyecto-final-servidor-k6wl.onrender.com/
+
+Debido a que Render bloquea el envío de correos, creamos esta cuenta ya autenticada:
+
+Email: usuarioprueba@servidor.mx
+
+Contraseña: Password123
+
 ## Stack de tecnologías
 
 | Capa                         | Tecnología                             |
@@ -13,7 +22,7 @@ materia Tecnologías de Desarrollo en el Servidor.
 | Backend                      | Node.js, Express.js (arquitectura MVC) |
 | Base de datos                | MongoDB + Mongoose                     |
 | Tiempo real                  | Socket.io                              |
-| Autenticación                | OAuth 2.0 con Google  e inicio de sesión con correo y contraseña                 |
+| Autenticación                | Inicio de sesión con correo y contraseña                 |
 | IA (generación de preguntas) | Gemini API                             |
 | Almacenamiento de imágenes   | Cloudinary                  |
 | Documentación de API         | Swagger (OpenAPI 3.0)                  |
@@ -50,7 +59,7 @@ materia Tecnologías de Desarrollo en el Servidor.
     ```
 
 5. El servidor queda disponible en `http://localhost:3000` y la documentación
-   interactiva de la API en `http://localhost:3000/api-docs`.
+   interactiva de la API, junto con la documentación de los esquemas de la base de datos en `http://localhost:3000/api-docs`. O en https://proyecto-final-servidor-k6wl.onrender.com/api-docs
 
 
 ## Scripts Disponibles

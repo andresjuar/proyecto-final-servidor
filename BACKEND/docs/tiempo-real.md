@@ -2,7 +2,7 @@
 
 Este documento explica lo que se agregó en la tercera entrega: envío de correos, autenticación y sockets.
 
-Como se planteó en la propuesta inicial del proyecto, esta parte retoma la lógica de juego desarrollada previamente en la materia de Web. En ese proyecto se utilizó ws en lugar de Socket.io, por lo que en esta versión se adaptó la implementación para trabajar con esta nueva tecnología.
+Como se planteó en la propuesta inicial del proyecto, esta parte retoma la lógica de juego desarrollada previamente en la materia de Web (Proyecto de Andrés). En ese proyecto se utilizó ws en lugar de Socket.io, por lo que en esta versión se adaptó la implementación para trabajar con esta nueva tecnología.
 
 Además, se tiparon las funciones existentes y se ajustaron para seguir los lineamientos de TypeScript.
 
@@ -59,7 +59,7 @@ si realmente van a entrar a una sala. Esa validación se hace después.
 
 ## 4. Estado en memoria (`roomState.ts`)
 
-El estado de las partidas activas se guarda en memoria, no en Mongo.
+El estado de las partidas activas se guarda en memoria, no en Mongo, con el fin de evitar alteraciones de la base de datos en cada evento de partida.
 
 Mongo sigue siendo la fuente de verdad (host, código, estado final, etc.),
 pero aquí se guarda lo que cambia en tiempo real:
@@ -75,7 +75,7 @@ Para evitar duplicados al reconectar:
 - no se usa `socketId` como identificador, que esto si se usaba en el proyecto del que se basa este, por lo que no existía manera de hacer reconexiones.
 - se usa un `identityKey` basado en `userId` o `guestName`
 
-Así, si alguien recarga la página, se reconoce como el mismo jugador.
+Así, si alguien recarga la página, se reconoce como el mismo jugador, Esto también permite la existencia de dos usuarios autenticados con el mismo nombre, pero no el de dos jugadores invitados.
 
 
 ## 5. Motor del juego (`game.engine.ts`)

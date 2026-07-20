@@ -1,84 +1,30 @@
 # Arquitectura del sistema
 
-## Idea General del Proyecto
+## Idea general del proyecto
 
-RicoQuiz+ sigue una arquitectura **MVC** sobre Node.js/Express, con dos
-canales de comunicación con el cliente: **REST** (operaciones CRUD y auth) y
-**WebSockets con Socket.io** (juego en tiempo real: lobby, preguntas,
-puntajes, reconexión).
+RicoQuiz+ está construido siguiendo una arquitectura **MVC** sobre Node.js y Express. La comunicación con el cliente se divide en dos partes: por un lado, **REST**, que se usa para operaciones como autenticación y manejo de datos; y por otro, **WebSockets con Socket.io**, que se encarga de todo lo que ocurre en tiempo real dentro del juego (lobby, preguntas, puntajes y reconexión de jugadores).
 
 ## Decisiones de diseño
 
-- **TypeScript estricto** (`strict: true`) para reducir errores en tiempo de
-  ejecución, dado que el proyecto original en JavaScript no tenía tipado y
-  eso generó varios bugs de referencias (`sockets`, IDs de jugadores
-  desincronizados en el leaderboard).
-- **Arquitectura MVC** con separación clara de rutas/controladores/modelos
-  para poder testear cada capa de forma aislada con Jest.
-- **Socket.io en vez de `ws` puro**: simplifica reconexión automática,
-  _rooms_ nativos y _namespaces_, resolviendo de raíz el problema de
-  reconexión entre páginas que se manejaba manualmente en la versión anterior.
-- **Documentación Swagger generada desde el código** (JSDoc en las rutas)
-  para que la documentación de la API no se desincronice del código real.
+* Se utilizó **TypeScript en modo estricto** (`strict: true`) para evitar errores en tiempo de ejecución. En la versión anterior en JavaScript hubo varios problemas relacionados con referencias y sincronización de datos.
+* Se organizó el proyecto con una **arquitectura MVC**, separando rutas, controladores y modelos. Esto facilita probar cada parte por separado.
+* Se eligió **Socket.io en lugar de `ws`** porque simplifica la reconexión automática y el manejo de salas, lo cual en la versión anterior se hacía manualmente.
+* La **documentación de la API se genera con Swagger** a partir de comentarios en el código, para mantenerla siempre actualizada.
 
 ## Autenticación
 
-- **JWT stateless** (`jsonwebtoken`), firmado con un secreto en variable de
-  entorno (`JWT_SECRET`). El payload solo incluye `id` y `email` del
-  usuario — lo mínimo necesario para identificarlo en rutas protegidas, sin
-  exponer datos sensibles dentro del token.
-- **Contraseñas hasheadas con `bcrypt`** en un middleware `pre('save')` del
-  modelo `User`, para que el hash ocurra siempre en un solo lugar sin
-  depender de que cada controller se acuerde de hacerlo.
-- **Middleware `authMiddleware`** valida el header `Authorization: Bearer
-  <token>` y adjunta el usuario decodificado a `req.user`, usando una
-  extensión de tipos de Express (`src/types/express/index.d.ts`) en vez de
-  una interfaz de `Request` separada — así cualquier controller normal
-  tipado con `Request` ya tiene acceso a `req.user` sin fricción con
-  `asyncHandler`.
-- **Owner/host desde el token, no desde el body**: tanto `Quiz.owner` como
-  `Match.host` se toman de `req.user.id` en vez de que el cliente los mande
-  manualmente — evita que alguien cree un quiz o una partida a nombre de
-  otro usuario.
-- **Login con Google**: el modelo ya contempla `googleId` (opcional, único),
-  y las rutas `/auth/google` / `/auth/google/callback` existen como dummy.
-  La implementación real (verificación de ID token con
-  `google-auth-library`) queda fuera del alcance de esta entrega.
+* Se implementó autenticación con **JWT** usando `jsonwebtoken`. El token incluye solo la información necesaria (`id` y `email`).
+* Las contraseñas se almacenan usando **bcrypt**, aplicando el hash en un middleware del modelo `User`.
+* El middleware `authMiddleware` valida el token enviado en el header `Authorization` y agrega la información del usuario a `req.user`.
+* Los campos como `owner` o `host` no se reciben desde el cliente, sino que se obtienen directamente del token para evitar suplantación de identidad.
 
 ## Activación de cuenta por correo
- 
-Para la entrega de creación de funcionalidades se creó lo siguiente:
- 
-- **`User.isActive`** (default `false`). `POST /auth/register` crea la cuenta
-  ya con `isActive:false` y manda un correo con un link de activación —
-  **a propósito no regresa un token de sesión en esa respuesta**: si lo
-  regresara, cualquiera podría saltarse la verificación con solo registrarse
-  y usar ese token directo, sin necesidad de abrir el correo.
-- **`POST /auth/login` rechaza con 403** (no 401 — las credenciales sí son
-  correctas, lo que falta es el estado de la cuenta) si `isActive` es
-  `false`, con un mensaje que invita a revisar el correo.
-- **El link de activación (`GET /auth/activate/:token`) usa un JWT, pero
-  firmado con un secreto DISTINTO** al de las sesiones
-  (`ACTIVATION_TOKEN_SECRET`, derivado de `JWT_SECRET` si no se define uno
-  aparte) y con un campo `purpose` que se valida explícitamente
-  (`src/utils/activationToken.ts`). Esto evita que un link de activación
-  pueda reutilizarse como si fuera un `Bearer token` válido para la API, algo
-  que sí pasaría si se usara `generarTokenJWT`/`verificarTokenJWT` tal cual
-  (mismo secreto, mismo formato de payload). Queda probado explícitamente en
-  `src/utils/__tests__/activationToken.spec.ts`.
-- **Envío de correo vía SMTP con `nodemailer`** (`src/services/Mail.service.ts`),
-  configurable por variables de entorno (`SMTP_HOST/PORT/USER/PASS`,
-  `MAIL_FROM`). Puede reusarse la misma cuenta de Gmail + App Password que ya
-  se configuró para las notificaciones de GitHub Actions (Práctica 2,
-  `dawidd6/action-send-mail`) — es la misma idea, solo que aquí la usa
-  directamente el backend en vez de un workflow de CI.
-- **Si el envío del correo falla** (SMTP caído, credenciales mal puestas,
-  etc.), el registro **no se cancela**: la cuenta queda creada pero inactiva,
-  y el error solo se loguea en el servidor. Botar todo el registro por un
-  problema de correo sería peor experiencia que dejar la cuenta pendiente de
-  activar.
-- **`POST /auth/resend-activation`** reenvía el correo si no llegó o expiró.
-  Responde **siempre el mismo mensaje genérico**, sin importar si el correo
-  existe, ya está activo, o se reenvió de verdad — mismo criterio que
-  "recuperar contraseña" en cualquier sistema serio, para que este endpoint
-  no se pueda usar para averiguar qué correos están registrados.
+
+Para la funcionalidad de activación de cuenta se implementó lo siguiente:
+
+* El campo `User.isActive` se inicializa en `false`. Al registrarse, el usuario recibe un correo con un enlace de activación, pero no se le entrega un token de sesión en ese momento.
+* El endpoint `POST /auth/login` devuelve un error 403 si la cuenta no está activada.
+* El enlace de activación utiliza un **JWT con un secreto distinto** al de autenticación, evitando que se use como token de sesión.
+* El envío de correos se realiza con **nodemailer**, configurado mediante variables de entorno.
+* Si ocurre un error al enviar el correo, la cuenta se crea de todas formas, pero queda inactiva.
+* Existe un endpoint (`POST /auth/resend-activation`) para reenviar el correo. Este responde siempre con el mismo mensaje, sin indicar si el correo existe o no, para evitar exponer información.
