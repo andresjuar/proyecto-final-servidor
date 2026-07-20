@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Sala — RicoQuiz+</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@700;800;900&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="css/style.css" />
+    </head>
+    <body>
+        <!-- Barra superior fija: código de sala + jugadores + salir -->
+        <div class="room-topbar" id="room-topbar" style="display: none">
+            <div>
+                <div class="room-code-label">Código de sala</div>
+                <div class="room-code-value" id="room-code-display">----</div>
+            </div>
+            <div class="player-chip-list" id="player-chip-list"></div>
+            <button class="btn btn-small btn-danger" id="leave-room-btn">Salir</button>
+        </div>
+
+        <main class="page" id="room-main">
+            <!-- ===== Conectando ===== -->
+            <div class="screen center-screen" id="screen-connecting">
+                <div class="spinner-text">Conectando a la sala...</div>
+            </div>
+
+            <!-- ===== Nombre de invitado (si aplica) ===== -->
+            <div class="screen center-screen hidden" id="screen-guest-gate">
+                <div class="panel container" style="max-width: 420px">
+                    <h2 style="margin-bottom: 1rem">¿Cómo te llamas?</h2>
+                    <div id="guest-gate-error" class="form-error hidden"></div>
+                    <form id="guest-gate-form">
+                        <div class="field">
+                            <label for="guest-gate-name">Tu nombre</label>
+                            <input type="text" id="guest-gate-name" minlength="2" maxlength="30" required />
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Entrar a la sala</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- ===== Error de sala ===== -->
+            <div class="screen center-screen hidden" id="screen-room-error">
+                <div class="panel container" style="max-width: 420px; text-align: center">
+                    <h2 style="margin-bottom: 1rem">😕 No se pudo entrar</h2>
+                    <p id="room-error-message" class="muted" style="margin-bottom: 1.25rem"></p>
+                    <a href="index.html" class="btn btn-primary">Volver al inicio</a>
+                </div>
+            </div>
+
+            <!-- ===== Lobby: HOST ===== -->
+            <div class="screen hidden" id="screen-lobby-host">
+                <div class="container container-wide">
+                    <div class="panel">
+                        <p id="lobby-quiz-status" class="muted" style="margin-bottom: 1rem"></p>
+
+                        <div class="tabs">
+                            <button class="tab-btn active" data-tab="mine" type="button">Mis quizzes</button>
+                            <button class="tab-btn" data-tab="explore" type="button">Explorar públicos</button>
+                            <button class="tab-btn" data-tab="ai" type="button">Generar con IA</button>
+                        </div>
+
+                        <div id="tab-mine" class="tab-panel">
+                            <div id="my-quizzes-list" class="quiz-grid"></div>
+                            <p id="my-quizzes-empty" class="muted hidden">
+                                Todavía no has creado ningún quiz.
+                                <a href="create-quiz.html" style="color: var(--purple); font-weight: 800"
+                                    >Crea uno aquí</a
+                                >.
+                            </p>
+                        </div>
+
+                        <div id="tab-explore" class="tab-panel hidden">
+                            <form id="lobby-search-form" class="search-bar" style="margin-bottom: 1rem">
+                                <div class="field">
+                                    <label for="lobby-search-q">Buscar por título</label>
+                                    <input type="text" id="lobby-search-q" />
+                                </div>
+                                <button type="submit" class="btn btn-small">Buscar</button>
+                            </form>
+                            <div id="lobby-explore-list" class="quiz-grid"></div>
+                        </div>
+
+                        <div id="tab-ai" class="tab-panel hidden">
+                            <form id="lobby-ai-form">
+                                <div class="field">
+                                    <label for="lobby-ai-topic">Tema</label>
+                                    <input type="text" id="lobby-ai-topic" placeholder="ej. historia de México" required />
+                                </div>
+                                <div class="field" style="max-width: 200px">
+                                    <label for="lobby-ai-num">Número de preguntas</label>
+                                    <input type="number" id="lobby-ai-num" min="1" max="30" value="10" />
+                                </div>
+                                <button type="submit" class="btn btn-primary" id="lobby-ai-submit">
+                                    Generar quiz
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-green btn-block" id="start-game-btn" disabled>
+                        Iniciar partida
+                    </button>
+                </div>
+            </div>
+
+            <!-- ===== Lobby: PLAYER ===== -->
+            <div class="screen center-screen hidden" id="screen-lobby-player">
+                <div class="panel container" style="text-align: center">
+                    <h2>Comparte este código con tus amigos</h2>
+                    <div class="room-code-value" style="margin: 1rem 0" id="lobby-player-code"></div>
+                    <p class="muted" style="margin-bottom: 1rem">Esperando a que el host inicie la partida...</p>
+                    <div class="player-chip-list" id="lobby-player-chip-list" style="justify-content: center"></div>
+                </div>
+            </div>
+
+            <!-- ===== Cargando ===== -->
+            <div class="screen center-screen hidden" id="screen-loading">
+                <div class="spinner-text" id="loading-message">Preparando la partida...</div>
+                <button class="btn btn-primary hidden" id="loading-next-btn" type="button">
+                    Comenzar primera pregunta
+                </button>
+            </div>
+
+            <!-- ===== Pregunta ===== -->
+            <div class="screen hidden" id="screen-question">
+                <div class="container">
+                    <div class="row-between">
+                        <span class="muted" id="question-progress" style="color: var(--white)"></span>
+                        <div class="timer-badge" id="question-timer">--</div>
+                    </div>
+                    <div class="panel">
+                        <h2 id="question-text" style="margin-bottom: 1rem"></h2>
+                        <img id="question-image" class="question-image hidden" src="" alt="" />
+                        <div class="options-grid" id="question-options" style="margin-top: 1rem"></div>
+                        <p id="host-answer-count" class="muted hidden" style="margin-top: 1rem"></p>
+                        <button
+                            type="button"
+                            class="btn btn-danger"
+                            id="force-reveal-btn"
+                            style="margin-top: 1rem"
+                        >
+                            Forzar revelar
+                        </button>
+                        <p id="player-waiting-msg" class="muted hidden" style="margin-top: 1rem">
+                            Ya respondiste. Esperando a los demás jugadores...
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== Reveal ===== -->
+            <div class="screen center-screen hidden" id="screen-reveal">
+                <div class="panel container" style="text-align: center">
+                    <h2 style="margin-bottom: 0.75rem">Respuesta correcta</h2>
+                    <p id="reveal-correct-text" style="font-size: 1.3rem; font-weight: 900; color: var(--green)"></p>
+                    <p id="reveal-own-result" class="muted" style="margin-top: 0.75rem"></p>
+                </div>
+            </div>
+
+            <!-- ===== Leaderboard ===== -->
+            <div class="screen hidden" id="screen-leaderboard">
+                <div class="container">
+                    <div class="panel">
+                        <h2 style="margin-bottom: 1rem">Tabla de posiciones</h2>
+                        <table class="leaderboard-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Jugador</th>
+                                    <th>Puntos</th>
+                                    <th>Última</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leaderboard-body"></tbody>
+                        </table>
+                    </div>
+                    <button class="btn btn-primary btn-block" id="next-question-btn">Siguiente pregunta</button>
+                </div>
+            </div>
+
+            <!-- ===== Finished ===== -->
+            <div class="screen hidden" id="screen-finished">
+                <div class="container">
+                    <div class="panel winner-banner">
+                        <div class="trophy">🏆</div>
+                        <h2 id="finished-winner-name"></h2>
+                        <p class="muted" id="finished-winner-score"></p>
+                    </div>
+                    <div class="panel">
+                        <h3 style="margin-bottom: 1rem">Resultados finales</h3>
+                        <table class="leaderboard-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Jugador</th>
+                                    <th>Puntos</th>
+                                </tr>
+                            </thead>
+                            <tbody id="finished-leaderboard-body"></tbody>
+                        </table>
+                    </div>
+                    <button class="btn btn-green btn-block hidden" id="play-again-btn">Jugar de nuevo</button>
+                </div>
+            </div>
+        </main>
+
+        <!-- ===== Modal: detalle / selección de quiz (compartido con explore) ===== -->
+        <div id="quiz-detail-modal" class="modal-overlay hidden">
+            <div class="modal-card modal-wide">
+                <button class="modal-close" id="quiz-detail-close" type="button">&times;</button>
+                <h2 id="quiz-detail-title"></h2>
+                <p id="quiz-detail-meta" class="muted"></p>
+                <hr class="divider" />
+                <div id="quiz-detail-questions" class="stack"></div>
+                <button type="button" class="btn btn-primary btn-block hidden" id="quiz-detail-use-btn" style="margin-top: 1rem">
+                    Usar este quiz
+                </button>
+            </div>
+        </div>
+
+        <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+        <script src="js/config.js"></script>
+        <script src="js/api.js"></script>
+        <script src="js/toast.js"></script>
+        <script src="js/auth.js"></script>
+        <script src="js/quiz-explorer.js"></script>
+        <script src="js/room.js"></script>
+    </body>
+</html>

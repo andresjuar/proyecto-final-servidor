@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>RicoQuiz+</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@700;800;900&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="css/style.css" />
+    </head>
+    <body>
+        <!-- ===== Navbar ===== -->
+        <nav class="topbar">
+            <a href="index.html" class="brand">Rico<span>Quiz+</span></a>
+            <div id="nav-session">
+                <button id="nav-login-btn" class="btn btn-small btn-purple">Iniciar sesión</button>
+                <div id="nav-user-box" class="hidden">
+                    <span id="nav-user-name"></span>
+                    <button id="nav-logout-btn" class="btn btn-small btn-outline">Salir</button>
+                </div>
+            </div>
+        </nav>
+
+        <main class="page">
+            <div class="logo-wrap">
+                <div class="logo-badge">
+                    <div class="logo-text">Rico<span>Quiz+</span></div>
+                </div>
+                <div class="logo-sub">Trivias en tiempo real</div>
+            </div>
+
+            <div class="container">
+                <div class="big-cards">
+                    <button class="big-card" id="btn-start-game" type="button">
+                        <div class="big-card-icon">🚀</div>
+                        <div class="big-card-title">Iniciar partida</div>
+                        <div class="big-card-desc">Crea una sala y sé el host</div>
+                    </button>
+
+                    <button class="big-card" id="btn-join-game" type="button">
+                        <div class="big-card-icon">🎮</div>
+                        <div class="big-card-title">Unirse a una partida</div>
+                        <div class="big-card-desc">Entra con un código de sala</div>
+                    </button>
+
+                    <button class="big-card" id="btn-explore" type="button">
+                        <div class="big-card-icon">🔎</div>
+                        <div class="big-card-title">Explorar quizzes</div>
+                        <div class="big-card-desc">Mira los quizzes públicos</div>
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <!-- ===== Modal: Unirse a una partida ===== -->
+        <div id="join-modal" class="modal-overlay hidden">
+            <div class="modal-card">
+                <button class="modal-close" id="join-modal-close" type="button">&times;</button>
+                <h2>Unirse a una partida</h2>
+                <div id="join-error" class="form-error hidden"></div>
+                <form id="join-form">
+                    <div class="field">
+                        <label for="join-code">Código de sala</label>
+                        <input
+                            type="text"
+                            id="join-code"
+                            maxlength="4"
+                            style="text-transform: uppercase"
+                            autocomplete="off"
+                            required
+                        />
+                    </div>
+                    <div class="field" id="join-guest-field">
+                        <label for="join-guest-name">Tu nombre (invitado)</label>
+                        <input type="text" id="join-guest-name" minlength="2" maxlength="30" autocomplete="off" />
+                        <span class="field-hint">Solo si no tienes sesión iniciada.</span>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Unirme</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- ===== Modal: Login / Registro ===== -->
+        <div id="auth-modal" class="modal-overlay hidden">
+            <div class="modal-card">
+                <button class="modal-close" id="auth-modal-close" type="button">&times;</button>
+
+                <div id="auth-login-view">
+                    <h2>Iniciar sesión</h2>
+                    <div id="login-error" class="form-error hidden"></div>
+                    <form id="login-form">
+                        <div class="field">
+                            <label for="login-email">Correo</label>
+                            <input type="email" id="login-email" required />
+                        </div>
+                        <div class="field">
+                            <label for="login-password">Contraseña</label>
+                            <input type="password" id="login-password" required />
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Entrar</button>
+                    </form>
+                    <p class="modal-switch">¿No tienes cuenta? <a id="to-register">Regístrate</a></p>
+                </div>
+
+                <div id="auth-register-view" class="hidden">
+                    <h2>Crear cuenta</h2>
+                    <div id="register-error" class="form-error hidden"></div>
+                    <form id="register-form">
+                        <div class="field">
+                            <label for="register-displayName">Nombre</label>
+                            <input type="text" id="register-displayName" minlength="2" maxlength="50" required />
+                        </div>
+                        <div class="field">
+                            <label for="register-email">Correo</label>
+                            <input type="email" id="register-email" required />
+                        </div>
+                        <div class="field">
+                            <label for="register-password">Contraseña</label>
+                            <input type="password" id="register-password" minlength="8" required />
+                            <span class="field-hint">Mínimo 8 caracteres.</span>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Crear cuenta</button>
+                    </form>
+                    <p class="modal-switch">¿Ya tienes cuenta? <a id="to-login">Inicia sesión</a></p>
+                </div>
+
+                <div id="auth-register-success" class="hidden">
+                    <h2>¡Revisa tu correo!</h2>
+                    <p>Te enviamos un correo para activar tu cuenta. Actívala antes de iniciar sesión.</p>
+                    <button id="auth-success-close" class="btn btn-primary btn-block" style="margin-top: 1rem">
+                        Entendido
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <script src="js/config.js"></script>
+        <script src="js/api.js"></script>
+        <script src="js/toast.js"></script>
+        <script src="js/auth.js"></script>
+        <script src="js/home.js"></script>
+    </body>
+</html>

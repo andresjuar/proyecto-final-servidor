@@ -40,6 +40,7 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
 
     try {
         await sendActivationEmail(user.email, user.displayName, activationToken);
+        console.log("Correo Enviado")
     } catch (error) {
         // No tumbamos el registro solo porque el correo no salió (SMTP caído, etc.):
         // la cuenta queda creada pero inactiva, y se puede reintentar el envío después.
@@ -123,6 +124,8 @@ export const resendActivation = asyncHandler(async (req: Request, res: Response)
         const activationToken = generarTokenActivacion(user._id.toString());
         try {
             await sendActivationEmail(user.email, user.displayName, activationToken);
+            console.log("Correo Enviado")
+
         } catch (error) {
             // Igual que en register: no se filtra el fallo de envío en la respuesta,
             // solo se loguea para que el equipo lo detecte por su cuenta.

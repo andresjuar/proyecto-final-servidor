@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Explorar quizzes — RicoQuiz+</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@700;800;900&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="css/style.css" />
+    </head>
+    <body>
+        <nav class="topbar">
+            <a href="index.html" class="brand">Rico<span>Quiz+</span></a>
+            <div id="nav-session">
+                <button id="nav-login-btn" class="btn btn-small btn-purple">Iniciar sesión</button>
+                <div id="nav-user-box" class="hidden">
+                    <span id="nav-user-name"></span>
+                    <button id="nav-logout-btn" class="btn btn-small btn-outline">Salir</button>
+                </div>
+            </div>
+        </nav>
+
+        <main class="page">
+            <div class="container container-wide">
+                <div class="row-between">
+                    <h1 style="color: var(--white)">Explorar quizzes</h1>
+                    <a href="create-quiz.html" class="btn btn-primary">+ Crear quiz</a>
+                </div>
+
+                <div class="panel">
+                    <form id="search-form" class="search-bar">
+                        <div class="field">
+                            <label for="search-q">Buscar por título</label>
+                            <input type="text" id="search-q" placeholder="ej. superhéroes" />
+                        </div>
+                        <div class="field">
+                            <label for="search-tags">Tags (separados por coma)</label>
+                            <input type="text" id="search-tags" placeholder="ej. ciencia,historia" />
+                        </div>
+                        <button type="submit" class="btn btn-primary">Buscar</button>
+                    </form>
+                </div>
+
+                <div id="quiz-grid" class="quiz-grid"></div>
+                <div id="empty-results" class="empty-state hidden">No se encontraron quizzes.</div>
+
+                <div class="row-between" id="pagination-controls">
+                    <button id="prev-page" class="btn btn-small" type="button">← Anterior</button>
+                    <span id="page-info" class="muted" style="color: var(--white)"></span>
+                    <button id="next-page" class="btn btn-small" type="button">Siguiente →</button>
+                </div>
+            </div>
+        </main>
+
+        <!-- ===== Modal: detalle de quiz (preguntas, sin marcar la correcta) ===== -->
+        <div id="quiz-detail-modal" class="modal-overlay hidden">
+            <div class="modal-card modal-wide">
+                <button class="modal-close" id="quiz-detail-close" type="button">&times;</button>
+                <h2 id="quiz-detail-title"></h2>
+                <p id="quiz-detail-meta" class="muted"></p>
+                <hr class="divider" />
+                <div id="quiz-detail-questions" class="stack"></div>
+            </div>
+        </div>
+
+        <!-- ===== Modal: Login / Registro (compartido) ===== -->
+        <div id="auth-modal" class="modal-overlay hidden">
+            <div class="modal-card">
+                <button class="modal-close" id="auth-modal-close" type="button">&times;</button>
+
+                <div id="auth-login-view">
+                    <h2>Iniciar sesión</h2>
+                    <div id="login-error" class="form-error hidden"></div>
+                    <form id="login-form">
+                        <div class="field">
+                            <label for="login-email">Correo</label>
+                            <input type="email" id="login-email" required />
+                        </div>
+                        <div class="field">
+                            <label for="login-password">Contraseña</label>
+                            <input type="password" id="login-password" required />
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Entrar</button>
+                    </form>
+                    <p class="modal-switch">¿No tienes cuenta? <a id="to-register">Regístrate</a></p>
+                </div>
+
+                <div id="auth-register-view" class="hidden">
+                    <h2>Crear cuenta</h2>
+                    <div id="register-error" class="form-error hidden"></div>
+                    <form id="register-form">
+                        <div class="field">
+                            <label for="register-displayName">Nombre</label>
+                            <input type="text" id="register-displayName" minlength="2" maxlength="50" required />
+                        </div>
+                        <div class="field">
+                            <label for="register-email">Correo</label>
+                            <input type="email" id="register-email" required />
+                        </div>
+                        <div class="field">
+                            <label for="register-password">Contraseña</label>
+                            <input type="password" id="register-password" minlength="8" required />
+                            <span class="field-hint">Mínimo 8 caracteres.</span>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Crear cuenta</button>
+                    </form>
+                    <p class="modal-switch">¿Ya tienes cuenta? <a id="to-login">Inicia sesión</a></p>
+                </div>
+
+                <div id="auth-register-success" class="hidden">
+                    <h2>¡Revisa tu correo!</h2>
+                    <p>Te enviamos un correo para activar tu cuenta. Actívala antes de iniciar sesión.</p>
+                    <button id="auth-success-close" class="btn btn-primary btn-block" style="margin-top: 1rem">
+                        Entendido
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <script src="js/config.js"></script>
+        <script src="js/api.js"></script>
+        <script src="js/toast.js"></script>
+        <script src="js/auth.js"></script>
+        <script src="js/quiz-explorer.js"></script>
+        <script src="js/explore.js"></script>
+    </body>
+</html>

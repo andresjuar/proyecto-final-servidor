@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Crear quiz — RicoQuiz+</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@700;800;900&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="css/style.css" />
+    </head>
+    <body>
+        <nav class="topbar">
+            <a href="index.html" class="brand">Rico<span>Quiz+</span></a>
+            <div id="nav-session">
+                <button id="nav-login-btn" class="btn btn-small btn-purple">Iniciar sesión</button>
+                <div id="nav-user-box" class="hidden">
+                    <span id="nav-user-name"></span>
+                    <button id="nav-logout-btn" class="btn btn-small btn-outline">Salir</button>
+                </div>
+            </div>
+        </nav>
+
+        <main class="page">
+            <div class="container">
+                <h1 style="color: var(--white)">Crear quiz</h1>
+
+                <!-- Se muestra si no hay sesión iniciada -->
+                <div id="login-gate" class="panel hidden">
+                    <p style="margin-bottom: 1rem">Necesitas iniciar sesión para crear un quiz.</p>
+                    <button id="login-gate-btn" class="btn btn-primary">Iniciar sesión</button>
+                </div>
+
+                <form id="quiz-form" class="panel hidden">
+                    <div id="quiz-form-error" class="form-error hidden"></div>
+
+                    <div class="field">
+                        <label for="quiz-title">Título (3-100 caracteres)</label>
+                        <input type="text" id="quiz-title" minlength="3" maxlength="100" required />
+                    </div>
+
+                    <div class="field">
+                        <label for="quiz-description">Descripción (opcional, máx. 500 caracteres)</label>
+                        <textarea id="quiz-description" maxlength="500" rows="2"></textarea>
+                    </div>
+
+                    <div class="field-row">
+                        <div class="field">
+                            <label for="quiz-topic">Tema (opcional)</label>
+                            <input type="text" id="quiz-topic" />
+                        </div>
+                        <div class="field">
+                            <label for="quiz-tags">Tags separados por coma (opcional)</label>
+                            <input type="text" id="quiz-tags" placeholder="ciencia,historia" />
+                        </div>
+                    </div>
+
+                    <div class="checkbox-field field">
+                        <input type="checkbox" id="quiz-isPublic" />
+                        <label for="quiz-isPublic">Hacer público (aparece en el explorador)</label>
+                    </div>
+
+                    <div class="field">
+                        <label>Imagen de portada (opcional)</label>
+                        <input type="file" id="quiz-cover-file" accept="image/*" />
+                    </div>
+
+                    <hr class="divider" />
+
+                    <h3 style="margin-bottom: 1rem">Preguntas</h3>
+                    <div id="questions-container"></div>
+                    <button type="button" id="add-question-btn" class="btn btn-small" style="margin-bottom: 1.5rem">
+                        + Agregar pregunta
+                    </button>
+
+                    <button type="submit" class="btn btn-primary btn-block" id="submit-quiz-btn">Crear quiz</button>
+                </form>
+            </div>
+        </main>
+
+        <!-- Plantilla oculta para una pregunta (se clona con JS) -->
+        <template id="question-template">
+            <div class="question-editor" data-question>
+                <div class="question-editor-header">
+                    <strong data-question-number></strong>
+                    <button type="button" class="btn btn-small btn-danger" data-remove-question>Quitar</button>
+                </div>
+
+                <div class="field">
+                    <label>Pregunta</label>
+                    <input type="text" data-field="question" required />
+                </div>
+
+                <div class="field">
+                    <label>Imagen de la pregunta (opcional)</label>
+                    <input type="file" data-field="imageFile" accept="image/*" />
+                </div>
+
+                <div class="field">
+                    <label>Opciones (marca cuál es la correcta)</label>
+                    <div data-options-container></div>
+                    <button type="button" class="btn btn-small" data-add-option>+ Agregar opción</button>
+                </div>
+
+                <div class="field" style="max-width: 220px">
+                    <label>Tiempo límite (5-120 segundos)</label>
+                    <input type="number" data-field="timeLimitSeconds" min="5" max="120" value="20" />
+                </div>
+            </div>
+        </template>
+
+        <!-- Plantilla oculta para una opción -->
+        <template id="option-template">
+            <div class="option-row" data-option>
+                <input type="radio" data-field="isCorrect" />
+                <input type="text" data-field="optionText" placeholder="Texto de la opción" required />
+                <button type="button" class="btn btn-small btn-outline" data-remove-option>✕</button>
+            </div>
+        </template>
+
+        <!-- ===== Modal: Login / Registro (compartido) ===== -->
+        <div id="auth-modal" class="modal-overlay hidden">
+            <div class="modal-card">
+                <button class="modal-close" id="auth-modal-close" type="button">&times;</button>
+
+                <div id="auth-login-view">
+                    <h2>Iniciar sesión</h2>
+                    <div id="login-error" class="form-error hidden"></div>
+                    <form id="login-form">
+                        <div class="field">
+                            <label for="login-email">Correo</label>
+                            <input type="email" id="login-email" required />
+                        </div>
+                        <div class="field">
+                            <label for="login-password">Contraseña</label>
+                            <input type="password" id="login-password" required />
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Entrar</button>
+                    </form>
+                    <p class="modal-switch">¿No tienes cuenta? <a id="to-register">Regístrate</a></p>
+                </div>
+
+                <div id="auth-register-view" class="hidden">
+                    <h2>Crear cuenta</h2>
+                    <div id="register-error" class="form-error hidden"></div>
+                    <form id="register-form">
+                        <div class="field">
+                            <label for="register-displayName">Nombre</label>
+                            <input type="text" id="register-displayName" minlength="2" maxlength="50" required />
+                        </div>
+                        <div class="field">
+                            <label for="register-email">Correo</label>
+                            <input type="email" id="register-email" required />
+                        </div>
+                        <div class="field">
+                            <label for="register-password">Contraseña</label>
+                            <input type="password" id="register-password" minlength="8" required />
+                            <span class="field-hint">Mínimo 8 caracteres.</span>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Crear cuenta</button>
+                    </form>
+                    <p class="modal-switch">¿Ya tienes cuenta? <a id="to-login">Inicia sesión</a></p>
+                </div>
+
+                <div id="auth-register-success" class="hidden">
+                    <h2>¡Revisa tu correo!</h2>
+                    <p>Te enviamos un correo para activar tu cuenta. Actívala antes de iniciar sesión.</p>
+                    <button id="auth-success-close" class="btn btn-primary btn-block" style="margin-top: 1rem">
+                        Entendido
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <script src="js/config.js"></script>
+        <script src="js/api.js"></script>
+        <script src="js/toast.js"></script>
+        <script src="js/auth.js"></script>
+        <script src="js/create-quiz.js"></script>
+    </body>
+</html>
